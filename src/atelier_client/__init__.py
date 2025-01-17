@@ -28,7 +28,7 @@ class AtelierClient:
         - save_to (str): Directory to save outputs.
         - save_as (str): Output format ('png', 'webp', 'jpg', 'pil').
         """        
-        self.__logger = setup_logger(
+        self.logger = setup_logger(
             name=self.__class__.__name__,
             log_on=log_on,
             log_to=log_to
@@ -44,7 +44,7 @@ class AtelierClient:
         self.__load_lists()
 
         self.__init_checks(save_to, save_as)
-        self.__logger.info(f"Atelier Client is now ready!")
+        self.logger.info(f"Atelier Client is now ready!")
 
     def __init_checks(self, save_to: str, save_as: str):
         """
@@ -57,12 +57,12 @@ class AtelierClient:
             if save_as.lower() in ['png', 'webp', 'jpg', 'pil']:
                 self.save_as = save_as.lower()
             else:
-                self.__logger.warning(f"Invalid save format '{save_as}', defaulting to WEBP")
+                self.logger.warning(f"Invalid save format '{save_as}', defaulting to WEBP")
                 self.save_as = 'webp'
         
         except Exception as e:
             error = f"Error in init_checks: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
    
     def __online_check(self, url: str = 'https://www.google.com', timeout: int = 10):
@@ -74,7 +74,7 @@ class AtelierClient:
         
         except Exception as e:
             error = f"No internet connection available! Please check your network connection."
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def __load_preset(self, preset_path: str = "__atr__.py"):
@@ -129,7 +129,7 @@ class AtelierClient:
         
         except Exception as e:
             error = f"Error in load_atr_preset: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
     
     def __load_locale(self):
@@ -146,7 +146,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"Error in load_locale: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def __load_lists(self):
@@ -175,7 +175,7 @@ class AtelierClient:
             
         except Exception as e:
             error = f"Error in load_lists: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def __random_seed_generator(self, seed: int = 0, task_id: str = None):
@@ -201,7 +201,7 @@ class AtelierClient:
         
         except Exception as e:
             error = f"[{task_id}] Error in random_seed_generator: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise Exception(error)
 
     def __lora_checker(self, model_name: str, lora_svi: str = "none", lora_flux: str = "none", task_id: str = None):
@@ -220,17 +220,17 @@ class AtelierClient:
 
             if model_name in self.list_atr_models_flux:
                 if lora_svi not in ["none", None]:
-                    self.__logger.warning(f"[{task_id}] {model_name} only supports flux lora. Ignoring svi lora!")
+                    self.logger.warning(f"[{task_id}] {model_name} only supports flux lora. Ignoring svi lora!")
                     validated_svi = "none"
             
             elif model_name in self.list_atr_models_svi:
                 if lora_flux not in ["none", None]:
-                    self.__logger.warning(f"[{task_id}] {model_name} only supports svi lora. Ignoring flux lora!")
+                    self.logger.warning(f"[{task_id}] {model_name} only supports svi lora. Ignoring flux lora!")
                     validated_flux = "none"
             
             else:
                 if lora_svi not in ["none", None] or lora_flux not in ["none", None]:
-                    self.__logger.warning(f"[{task_id}] {model_name} doesn't support any lora for now!")
+                    self.logger.warning(f"[{task_id}] {model_name} doesn't support any lora for now!")
                     validated_svi = "none"
                     validated_flux = "none"
 
@@ -238,7 +238,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in lora_checker: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise Exception(error)
 
     def __prompt_processor(self, prompt: str = "", negative_prompt: str = "", style_name: str = "none",
@@ -266,7 +266,7 @@ class AtelierClient:
                     neg = neg_sty.replace("{negative_prompt}", neg)
             
             except Exception as e:
-                self.__logger.warning(f"[{task_id}] {e} not valid style preset!")
+                self.logger.warning(f"[{task_id}] {e} not valid style preset!")
             
             try:
                 if lora_svi is not None and lora_svi != "none":
@@ -277,13 +277,13 @@ class AtelierClient:
                     neg = neg_lora.replace("{negative_prompt}", neg)
             
             except Exception as e:
-                self.__logger.warning(f"[{task_id}] {e} not valid lora_svi preset!")
+                self.logger.warning(f"[{task_id}] {e} not valid lora_svi preset!")
             
             return pos, neg
         
         except Exception as e:
             error = f"[{task_id}] Error in prompt_processor: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise Exception(error)
 
     def __image_processor(self, image, gr_editor_type: str = None, gr_mask_layer: int = 0, resize: bool = False,
@@ -308,15 +308,15 @@ class AtelierClient:
                 
                 if gr_editor_type == 'mask':
                     img = image["layers"][gr_mask_layer]
-                    self.__logger.info(f"[{task_id}] Created mask from gradio editor layer {gr_mask_layer}!")
+                    self.logger.info(f"[{task_id}] Created mask from gradio editor layer {gr_mask_layer}!")
                 
                 elif gr_editor_type == 'background':
                     img = image["background"]
-                    self.__logger.info(f"[{task_id}] Created image from gradio editor background!")
+                    self.logger.info(f"[{task_id}] Created image from gradio editor background!")
                 
                 elif gr_editor_type == 'composite':
                     img = image["composite"]
-                    self.__logger.info(f"[{task_id}] Created image from gradio editor composite!")
+                    self.logger.info(f"[{task_id}] Created image from gradio editor composite!")
 
                 else:
                     raise ValueError(f"Invalid gr_editor_type: {gr_editor_type}!")
@@ -324,15 +324,15 @@ class AtelierClient:
             # Handle regular image types
             elif isinstance(image, Image.Image):
                 img = image
-                self.__logger.info(f"[{task_id}] Created image from pil object!")
+                self.logger.info(f"[{task_id}] Created image from pil object!")
                 
             elif hasattr(image, 'read'):
                 img = Image.open(image)
-                self.__logger.info(f"[{task_id}] Created image from file-like object!")
+                self.logger.info(f"[{task_id}] Created image from file-like object!")
                 
             elif isinstance(image, str):
                 img = Image.open(image)
-                self.__logger.info(f"[{task_id}] Created image from file path!")
+                self.logger.info(f"[{task_id}] Created image from file path!")
             
             else:
                 raise ValueError(f"Unsupported image type: {type(image)}")
@@ -350,7 +350,7 @@ class AtelierClient:
                         new_width = int(new_height * aspect_ratio)
 
                     img = img.resize((new_width, new_height), Image.LANCZOS)
-                    self.__logger.info(f"[{task_id}] Resized image from {width}x{height} to {new_width}x{new_height}")
+                    self.logger.info(f"[{task_id}] Resized image from {width}x{height} to {new_width}x{new_height}")
 
             byte_array = BytesIO()
             img.save(byte_array, format="PNG")
@@ -360,7 +360,7 @@ class AtelierClient:
         
         except Exception as e:
             error = f"[{task_id}] Error in image_processor: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_generate(self, prompt: str, negative_prompt: str = "", model_name: str = "flux-turbo",
@@ -421,7 +421,7 @@ class AtelierClient:
         
         except Exception as e:
             error = f"[{task_id}] Error in image_generate: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_variation(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "flux-turbo",
@@ -502,7 +502,7 @@ class AtelierClient:
         
         except Exception as e:
             error = f"[{task_id}] Error in image_variation: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_structure(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "svi-realistic",
@@ -568,7 +568,7 @@ class AtelierClient:
         
         except Exception as e:
             error = f"[{task_id}] Error in image_structure: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_facial(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "svi-realistic",
@@ -633,7 +633,7 @@ class AtelierClient:
         
         except Exception as e:
             error = f"[{task_id}] Error in image_facial: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_style(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "svi-realistic",
@@ -698,7 +698,7 @@ class AtelierClient:
         
         except Exception as e:
             error = f"[{task_id}] Error in image_style: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_outpaint(self, image: str, image_size: str = "16:9"):
@@ -732,7 +732,7 @@ class AtelierClient:
             
         except Exception as e:
             error = f"[{task_id}] Error in image_outpaint: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_consistent(self, prompt: str, face_image: str = None, style_image: str = None, negative_prompt: str = "", 
@@ -805,7 +805,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in image_consistent: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def face_identity(self, image: str, prompt: str, negative_prompt: str = "", image_size: str = "1:1", 
@@ -866,7 +866,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in face_identity: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def realtime_canvas(self, image: str, prompt: str, negative_prompt: str = "", lora_rt: str = "none",
@@ -917,7 +917,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in realtime_canvas: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def realtime_generate(self, prompt: str, negative_prompt: str = "", image_size: str = "1:1",
@@ -964,7 +964,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in realtime_generate: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_inpaint(self, image: str, prompt: str, mask: str = None, style_name: str = "none"):
@@ -1015,7 +1015,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in image_inpaint: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_erase(self, image: str, mask: str = None):
@@ -1060,7 +1060,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in image_erase: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_enhance(self, image: str, prompt: str = "", negative_prompt: str = "", creativity: float = 0.3,
@@ -1109,7 +1109,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in image_enhance: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_controlnet(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "sd-toon", 
@@ -1172,7 +1172,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in image_controlnet: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def face_gfpgan(self, image: str, model_version: str = "1.3"):
@@ -1212,7 +1212,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in face_gfpgan: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def face_codeformer(self, image: str):
@@ -1241,7 +1241,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in face_codeformer: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_upscale(self, image: str):
@@ -1270,7 +1270,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in image_upscale: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_bgremove(self, image: str):
@@ -1299,7 +1299,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in image_bgremove: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_caption(self, image: str):
@@ -1327,7 +1327,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in image_caption: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def image_prompt(self, image: str):
@@ -1356,7 +1356,7 @@ class AtelierClient:
 
         except Exception as e:
             error = f"[{task_id}] Error in image_prompt: {e}"
-            self.__logger.error(error)
+            self.logger.error(error)
             raise RuntimeError(error)
 
     def __get_task_id(self):
@@ -1370,7 +1370,7 @@ class AtelierClient:
             task_id = f"{timestamp}_{uuid_part}"
             caller_name = self.__get_caller_name(task_id)
             
-            self.__logger.info(f"[{task_id}] Created task id from {caller_name} request!")
+            self.logger.info(f"[{task_id}] Created task id from {caller_name} request!")
             return task_id
         
         except Exception as e:
@@ -1395,7 +1395,7 @@ class AtelierClient:
             with open(file_path, 'wb') as output:
                 output.write(content)
                 
-            self.__logger.info(f"[{task_id}] Saved output: {file_path}")
+            self.logger.info(f"[{task_id}] Saved output: {file_path}")
             return file_path
         
         except Exception as e:
@@ -1422,7 +1422,7 @@ class AtelierClient:
             img = Image.open(BytesIO(content))
             
             if self.save_as == 'pil':
-                self.__logger.info(f"[{task_id}] Saved output as PIL object!")
+                self.logger.info(f"[{task_id}] Saved output as PIL object!")
                 return img
 
             # Set format-specific parameters
@@ -1474,7 +1474,7 @@ class AtelierClient:
             tx_timeout = rx_timeout = self.timeout
             caller_name = self.__get_caller_name(task_id)
 
-            self.__logger.info(f"[{task_id}] Processing {caller_name} request in {tx_timeout} seconds")
+            self.logger.info(f"[{task_id}] Processing {caller_name} request in {tx_timeout} seconds")
             
             def handle_custom_response(response, custom_type):
                 try:
@@ -1488,10 +1488,10 @@ class AtelierClient:
                         self.__save_output(result.encode('utf-8'), ".txt", caller_name, task_id)
                         return result
                     
-                    self.__logger.warning(f"[{task_id}] Invalid custom request: {custom_type}")            
+                    self.logger.warning(f"[{task_id}] Invalid custom request: {custom_type}")            
                 
                 except Exception as e:
-                    self.__logger.error(f"[{task_id}] Error handling {custom_type} response: {e}")
+                    self.logger.error(f"[{task_id}] Error handling {custom_type} response: {e}")
                     return None           
 
             def handle_streaming_response(response):
@@ -1502,7 +1502,7 @@ class AtelierClient:
                         text_response = response.text.strip()
                         
                         if text_response == "NSFW content detected":
-                            self.__logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
+                            self.logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
                             return None                   
 
                     if "json" in content_type:
@@ -1519,17 +1519,17 @@ class AtelierClient:
                     content_bytes = content.getvalue()
 
                     if len(content_bytes) <= 4096:
-                        self.__logger.error(f"[{task_id}] Response is too small! (4096 bytes or less)")
+                        self.logger.error(f"[{task_id}] Response is too small! (4096 bytes or less)")
                         return None                
 
                     if content_bytes == self.__err:
-                        self.__logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
+                        self.logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
                         return None                
                     
                     return self.__save_output(content_bytes, ".png", caller_name, task_id)
 
                 except Exception as e:
-                    self.__logger.error(f"[{task_id}] Error handling streaming response: {e}")
+                    self.logger.error(f"[{task_id}] Error handling streaming response: {e}")
                     return None           
 
             def request_handler(custom=None):
@@ -1557,17 +1557,17 @@ class AtelierClient:
                     )
                     
                     if response.status_code != 200:
-                        self.__logger.error(f"[{task_id}] Request failed! Status: {response.status_code} ({response.text})")
+                        self.logger.error(f"[{task_id}] Request failed! Status: {response.status_code} ({response.text})")
                         return None
                     
                     return handle_streaming_response(response)
                 
                 except requests.exceptions.RequestException as e:
-                    self.__logger.error(f"[{task_id}] Request error or timeout!")
+                    self.logger.error(f"[{task_id}] Request error or timeout!")
                     return None        
                 
                 finally:
-                    self.__logger.info(f"[{task_id}] Request took {time.time() - start_time:.2f} seconds.")
+                    self.logger.info(f"[{task_id}] Request took {time.time() - start_time:.2f} seconds.")
 
             return request_handler(custom)
 
