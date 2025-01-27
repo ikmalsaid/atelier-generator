@@ -19,12 +19,12 @@
         "codeformer": "codeformer"
     },
     "models_sdxl": {
-        "sdxl-envystarlight": "403",
-        "sdxl-freshdrawxl": "402",
-        "sdxl-realvisxl": "401",
-        "sdxl-base": "405",
+        "sdxl-illustration": "403",
+        "sdxl-anime": "402",
+        "sdxl-realistic": "401",
+        "sdxl-artistic": "405",
         "sdxl-turbo": "128",
-        "sdxl-turbo-alt": "404"
+        "sdxl-turbo-2": "404"
     },
     "models_flux": {
         "flux-turbo": "309",
