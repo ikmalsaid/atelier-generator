@@ -15,7 +15,8 @@ from atelier_client import AtelierClient
 
 # Initialize the client
 client = AtelierClient(
-    gradio=False,      # Enable/disable Gradio integration
+    mode="default",    # Set startup mode (default/webui/api)
+    gradio=False,      # Enable/disable Gradio support
     timeout=180,       # Request timeout in seconds
     log_on=True,       # Enable logging
     save_to="outputs", # Output directory
@@ -181,34 +182,9 @@ image_controlnet(
     style_name=None           # Optional: Style preset
 )
 
-# Consistent image generation with style
-image_consistent(
-    prompt,                   # Required: Text prompt
-    face_image,               # Required: Face reference
-    style_image,              # Required: Style reference
-    negative_prompt=None,     # Optional: Negative prompt
-    image_size="1:1",         # Optional: Output image size ratio
-    face_strength=1.2,        # Optional: Face consistency
-    style_strength=0.7,       # Optional: Style strength
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
-)
-```
-
 ### Face Enhancement
 
 ```python
-# Consistent image generation with InstantID
-face_identity(
-    image,                    # Required: Face reference
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    image_size="1:1",         # Optional: Output image size ratio
-    strength=1.0,             # Optional: Face strength
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
-)
-
 # Restore faces using GFPGAN
 face_gfpgan(
     image,                    # Required: Source image
@@ -230,6 +206,12 @@ image_prompt(image)           # Required: Source image
 ```
 
 ## Configuration Options
+
+### Startup Mode
+
+- `default` - Default mode suitable for function calling
+- `webui` - Starts Web UI with all features (powered by Gradio)
+- `api` - Starts Web API with all endpoints (powered by Flask)
 
 ### Output Formats
 

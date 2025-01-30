@@ -22,7 +22,7 @@ class AtelierClient:
 
         Parameters:
         - mode    (str): Startup mode ('default', 'webui', 'api').
-        - gradio (bool): Enable Gradio integration.
+        - gradio (bool): Enable Gradio support.
         - timeout (int): Timeout for requests in seconds.
         - log_on (bool): Enable logging.
         - log_to  (str): Directory to save logs.
@@ -120,7 +120,6 @@ class AtelierClient:
             self.__atr_inpaint      = __atr_preset["adr"]["inpaint"]
             self.__atr_realtime     = __atr_preset["adr"]["realtime"]
             self.__atr_canvas       = __atr_preset["adr"]["canvas"]
-            self.__atr_consistent   = __atr_preset["adr"]["consistent"]
             self.__atr_outpaint     = __atr_preset["adr"]["outpaint"]
             self.__atr_caption      = __atr_preset["adr"]["caption"]
             self.__atr_codeformer   = __atr_preset["adr"]["codeformer"]
