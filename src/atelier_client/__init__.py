@@ -14,13 +14,14 @@ from importlib import resources
 from colorpaws import setup_logger
 
 class AtelierClient:
-    """Copyright (C) 2023-2025 Ikmal Said. All rights reserved."""
-    def __init__(self, gradio: bool = False, timeout: int = 180, log_on: bool = True,
+    """Copyright (C) 2025 Ikmal Said. All rights reserved."""
+    def __init__(self, mode: str = "default", gradio: bool = False, timeout: int = 180, log_on: bool = True,
                  log_to: str = None, save_to: str = "outputs", save_as: str = "webp"):
         """
         Initialize Atelier Client module.
 
         Parameters:
+        - mode    (str): Startup mode ('default', 'webui', 'api').
         - gradio (bool): Enable Gradio integration.
         - timeout (int): Timeout for requests in seconds.
         - log_on (bool): Enable logging.
@@ -33,8 +34,7 @@ class AtelierClient:
             log_on=log_on,
             log_to=log_to
         )
-           
-        self.version = "25.1"
+        
         self.gradio  = gradio
         self.timeout = timeout
 
@@ -45,6 +45,9 @@ class AtelierClient:
 
         self.__init_checks(save_to, save_as)
         self.logger.info(f"Atelier Client is now ready!")
+        
+        if mode != "default":
+            self.__startup_mode(mode)
 
     def __init_checks(self, save_to: str, save_as: str):
         """
@@ -65,6 +68,25 @@ class AtelierClient:
             self.logger.error(error)
             raise RuntimeError(error)
    
+    def __startup_mode(self, mode: str):
+        """
+        Startup mode for api or webui with default values.
+        """
+        try:
+            if mode == "webui":
+                self.start_wui()
+            
+            elif mode == "api":
+                self.start_api()
+            
+            else:
+                raise ValueError(f"Invalid startup mode: {mode}")
+        
+        except Exception as e:
+            error = f"Error in startup_mode: {e}"
+            self.logger.error(error)
+            raise RuntimeError(error)
+   
     def __online_check(self, url: str = 'https://www.google.com', timeout: int = 10):
         """
         Check if there is an active internet connection.
@@ -77,7 +99,7 @@ class AtelierClient:
             self.logger.error(error)
             raise RuntimeError(error)
 
-    def __load_preset(self, preset_path: str = "__atr__.py"):
+    def __load_preset(self, preset_path: str = "atr.py"):
         """
         Loads the required preset.
 
@@ -362,6 +384,221 @@ class AtelierClient:
             error = f"[{task_id}] Error in image_processor: {e}"
             self.logger.error(error)
             raise RuntimeError(error)
+
+    def __get_task_id(self):
+        """
+        Generate a unique task ID for request tracking.
+        Returns a truncated UUID (8 characters).
+        """
+        try:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            uuid_part = str(uuid.uuid4())[:8]
+            task_id = f"{timestamp}_{uuid_part}"
+            caller_name = self.__get_caller_name(task_id)
+            
+            self.logger.info(f"[{task_id}] Created task id from {caller_name} request!")
+            return task_id
+        
+        except Exception as e:
+            raise Exception(f"Error in get_task_id: {e}")    
+
+    def __get_caller_name(self, task_id: str):
+        """
+        Get the name of the caller function.
+        """
+        try:
+            caller_name = inspect.currentframe().f_back.f_back.f_code.co_name
+            return caller_name
+        
+        except Exception as e:
+            raise Exception(f"[{task_id}] Error in get_caller_name: {e}")     
+
+    def __file_handler(self, content: bytes, file_path: str, task_id: str):
+        """
+        Helper method to save content to a temporary file or return PIL object.
+        """
+        try:
+            with open(file_path, 'wb') as output:
+                output.write(content)
+                
+            self.logger.info(f"[{task_id}] Saved output: {file_path}")
+            return file_path
+        
+        except Exception as e:
+            raise Exception(f"[{task_id}] Error in file_handler: {e}")    
+
+    def __save_output(self, content: bytes, extension: str, caller_name: str, task_id: str):
+        """
+        Helper method to save content to a file organized by date and task ID.
+        """
+        try:
+            # Extract date from task_id and format it
+            date_part = task_id.split('_')[0]
+            formatted_date = f"{date_part[:4]}-{date_part[4:6]}-{date_part[6:8]}"
+        
+            output_dir = os.path.join(self.save_to, formatted_date)
+            os.makedirs(output_dir, exist_ok=True)
+        
+            # Handle non-image files
+            if extension.lower() not in ['.png', '.jpg', '.webp']:
+                file_path = os.path.join(self.save_to, formatted_date, f"{task_id}_{caller_name}{extension}")
+                return self.__file_handler(content, file_path, task_id)
+
+            # Process image files
+            img = Image.open(BytesIO(content))
+            
+            if self.save_as == 'pil':
+                self.logger.info(f"[{task_id}] Saved output as PIL object!")
+                return img
+
+            # Set format-specific parameters
+            save_params = {}
+            
+            if self.save_as == 'webp':
+                format_name = 'WebP'
+                extension = '.webp'
+                save_params['quality'] = 90
+                
+            elif self.save_as == 'jpg':
+                format_name = 'JPEG'
+                extension = '.jpg'
+                save_params['quality'] = 95
+                if img.mode == 'RGBA':
+                    img = img.convert('RGB')
+                    
+            else:
+                format_name = 'PNG'
+                extension = '.png'
+
+            # Save image with selected format
+            output_buffer = BytesIO()
+            img.save(output_buffer, format=format_name, **save_params)
+            content = output_buffer.getvalue()
+
+            # Save to file
+            file_path = os.path.join(self.save_to, formatted_date, f"{task_id}_{caller_name}{extension}")
+            return self.__file_handler(content, file_path, task_id)
+
+        except Exception as e:
+            raise Exception(f"[{task_id}] Error in save_output: {e}")    
+
+    def __service_request(self, url: str, header: dict, files: dict, data: dict = None,
+                          delay: float = 0.5, custom: str = None, task_id: str = None):
+        """
+        Process inputs for each server connection concurrently and return results.
+
+        Parameters:
+        - url (str): URL for the service request.
+        - header (dict): Headers for the request.
+        - files (dict): Files to send with the request.
+        - data (dict): Additional data for the request.
+        - delay (float): Delay between requests.
+        - custom (str): Custom request type.
+        """
+        
+        try:
+            tx_timeout = rx_timeout = self.timeout
+            caller_name = self.__get_caller_name(task_id)
+
+            self.logger.info(f"[{task_id}] Processing {caller_name} request in {tx_timeout} seconds")
+            
+            def handle_custom_response(response, custom_type):
+                try:
+                    if custom_type == "gfpgan":
+                        result = response["data"][0]["image_base64"].split(",")[1]
+                        content = base64.b64decode(result)
+                        return self.__save_output(content, ".png", caller_name, task_id)
+                    
+                    elif custom_type == "caption":
+                        result = response["caption"]
+                        self.__save_output(result.encode('utf-8'), ".txt", caller_name, task_id)
+                        return result
+                    
+                    self.logger.warning(f"[{task_id}] Invalid custom request: {custom_type}")            
+                
+                except Exception as e:
+                    self.logger.error(f"[{task_id}] Error handling {custom_type} response: {e}")
+                    return None           
+
+            def handle_streaming_response(response):
+                try:
+                    content_type = response.headers.get("Content-Type", "").lower()
+                    
+                    if "text/plain" in content_type:
+                        text_response = response.text.strip()
+                        
+                        if text_response == "NSFW content detected":
+                            self.logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
+                            return None                   
+
+                    if "json" in content_type:
+                        return response.json()
+
+                    if "text" in content_type:
+                        return response.text
+
+                    content = BytesIO()
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            content.write(chunk)
+                    
+                    content_bytes = content.getvalue()
+
+                    if len(content_bytes) <= 4096:
+                        self.logger.error(f"[{task_id}] Response is too small! (4096 bytes or less)")
+                        return None                
+
+                    if content_bytes == self.__err:
+                        self.logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
+                        return None                
+                    
+                    return self.__save_output(content_bytes, ".png", caller_name, task_id)
+
+                except Exception as e:
+                    self.logger.error(f"[{task_id}] Error handling streaming response: {e}")
+                    return None           
+
+            def request_handler(custom=None):
+                try:
+                    time.sleep(delay)
+                    start_time = time.time()
+                    
+                    if custom:
+                        custom = custom.lower()
+                        response = requests.post(
+                            url, 
+                            headers=header,
+                            data=data if custom == "gfpgan" else None,
+                            files=files,
+                            timeout=(tx_timeout, rx_timeout)
+                        )
+                        return handle_custom_response(response.json(), custom)
+                    
+                    response = requests.post(
+                        url,
+                        headers=header,
+                        files=files,
+                        timeout=(tx_timeout, rx_timeout),
+                        stream=True
+                    )
+                    
+                    if response.status_code != 200:
+                        self.logger.error(f"[{task_id}] Request failed! Status: {response.status_code} ({response.text})")
+                        return None
+                    
+                    return handle_streaming_response(response)
+                
+                except requests.exceptions.RequestException as e:
+                    self.logger.error(f"[{task_id}] Request error or timeout!")
+                    return None        
+                
+                finally:
+                    self.logger.info(f"[{task_id}] Request took {time.time() - start_time:.2f} seconds.")
+
+            return request_handler(custom)
+
+        except Exception as e:
+            raise Exception(f"[{task_id}] Error in service_request: {e}")    
 
     def image_generate(self, prompt: str, negative_prompt: str = "", model_name: str = "flux-turbo",
                        image_size: str = "1:1", lora_svi: str = "none", lora_flux: str = "none",
@@ -732,140 +969,6 @@ class AtelierClient:
             
         except Exception as e:
             error = f"[{task_id}] Error in image_outpaint: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
-
-    def image_consistent(self, prompt: str, face_image: str = None, style_image: str = None, negative_prompt: str = "", 
-                         image_size: str = "1:1", face_strength: float = 1.2, style_strength: float = 0.7, 
-                         image_seed: int = 0, style_name: str = "none"):
-        """
-        Consistent image generation with instantid and style.
-
-        Parameters:
-        - prompt (str): User's positive prompt.
-        - face_image (file): Source face image file.
-        - style_image (file): Source style image file.
-        - negative_prompt (str): User's negative prompt.
-        - image_size (str): Desired image size ratio.
-        - face_strength (float): Strength of face consistency.
-        - style_strength (float): Strength of style application.
-        - image_seed (int): Seed for image generation.
-        - style_name (str): Name of the style preset.
-        """
-        try:
-            task_id = self.__get_task_id()
-            
-            prompt, negative_prompt = self.__prompt_processor(prompt, negative_prompt, style_name, task_id = task_id)
-            
-            seed = self.__random_seed_generator(image_seed, task_id)
-            
-            face_strength = str(float(face_strength))
-            style_strength = str(float(style_strength))
-            
-            image_size = self.__atr_size.get(image_size)
-            if not image_size:
-                raise ValueError(f"Invalid image size!")
-            
-            url = self.__ime + self.__atr_consistent
-            header = self.__xea
-            
-            body = {
-                "identitynet_strength": (None, face_strength),
-                "negative_prompt": (None, negative_prompt),
-                "style_strength": (None, style_strength),
-                "aspect_ratio": (None, image_size),
-                "high_res_results": (None, "1"),
-                "mode": (None, "fidelity"),
-                "prompt": (None, prompt),
-                "style_id": (None, "3"),
-                "priority": (None, "1"),
-                "seed": (None, seed),
-                "steps": (None, "5"),
-                "cfg": (None, "1.2")
-            }
-            
-            if face_image is None and style_image is None:
-                raise ValueError(f"At least one of face_image or style_image must be provided!")
-
-            if face_image is not None:
-                face_array = self.__image_processor(face_image, task_id = task_id)
-                if not face_array:
-                    raise ValueError(f"Invalid face image!")
-               
-                body["face_image"] = ("face.png", face_array, "image/png")
-
-            if style_image is not None:
-                style_array = self.__image_processor(style_image, task_id = task_id)
-                if not style_array:
-                    raise ValueError(f"Invalid style image!")
-                
-                body["style_image"] = ("style.png", style_array, "image/png")
-
-            return self.__service_request(url, header, body, task_id = task_id)
-
-        except Exception as e:
-            error = f"[{task_id}] Error in image_consistent: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
-
-    def face_identity(self, image: str, prompt: str, negative_prompt: str = "", image_size: str = "1:1", 
-                      strength: float = 1.0, image_seed: int = 0, style_name: str = "none"):
-        """
-        Consistent image generation with instantid.
-
-        Parameters:
-        - image (file): Source face image file.
-        - prompt (str): User's positive prompt.
-        - negative_prompt (str): User's negative prompt.
-        - image_size (str): Desired image size ratio.
-        - strength (float): Strength of face consistency.
-        - image_seed (int): Seed for image generation.
-        - style_name (str): Name of the style preset.
-        """
-        try:
-            task_id = self.__get_task_id()
-            
-            byte_array = self.__image_processor(image, task_id = task_id)
-            if not byte_array:
-                raise ValueError(f"Invalid image!")  
-                          
-            prompt, negative_prompt = self.__prompt_processor(prompt, negative_prompt, style_name, task_id = task_id)
-            
-            seed = self.__random_seed_generator(image_seed, task_id)
-
-            strength = str(float(strength))
-            
-            image_size = self.__atr_size.get(image_size)
-            if not image_size:
-                raise ValueError(f"Invalid image size!")
-
-            url = self.__ime + self.__atr_consistent
-            header = self.__xea
-
-            body = {
-                "image": ("input.png", byte_array, "image/png"),
-                "negative_prompt": (None, negative_prompt),
-                "identitynet_strength": (None, strength),
-                "image_adapter_strength": (None, "0.8"),
-                "aspect_ratio": (None, image_size),
-                "high_res_results": (None, "1"),
-                "model_version": (None, "1"),
-                "fast_mode": (None, "false"),
-                "prompt": (None, prompt),
-                "canny": (None, "false"),
-                "depth": (None, "false"),
-                "style_id": (None, "2"),
-                "priority": (None, "1"),
-                "pose": (None, "true"),
-                "cfg": (None, "1.2"),
-                "seed": (None, seed),
-                "steps": (None, "4")
-            }
-            
-            return self.__service_request(url, header, body, task_id = task_id)
-
-        except Exception as e:
-            error = f"[{task_id}] Error in face_identity: {e}"
             self.logger.error(error)
             raise RuntimeError(error)
 
@@ -1359,217 +1462,51 @@ class AtelierClient:
             self.logger.error(error)
             raise RuntimeError(error)
 
-    def __get_task_id(self):
+    def start_api(self, host: str = "0.0.0.0", port: int = 5733, debug: bool = False):
         """
-        Generate a unique task ID for request tracking.
-        Returns a truncated UUID (8 characters).
-        """
-        try:
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            uuid_part = str(uuid.uuid4())[:8]
-            task_id = f"{timestamp}_{uuid_part}"
-            caller_name = self.__get_caller_name(task_id)
-            
-            self.logger.info(f"[{task_id}] Created task id from {caller_name} request!")
-            return task_id
-        
-        except Exception as e:
-            raise Exception(f"Error in get_task_id: {e}")    
-
-    def __get_caller_name(self, task_id: str):
-        """
-        Get the name of the caller function.
-        """
-        try:
-            caller_name = inspect.currentframe().f_back.f_back.f_code.co_name
-            return caller_name
-        
-        except Exception as e:
-            raise Exception(f"[{task_id}] Error in get_caller_name: {e}")     
-
-    def __file_handler(self, content: bytes, file_path: str, task_id: str):
-        """
-        Helper method to save content to a temporary file or return PIL object.
-        """
-        try:
-            with open(file_path, 'wb') as output:
-                output.write(content)
-                
-            self.logger.info(f"[{task_id}] Saved output: {file_path}")
-            return file_path
-        
-        except Exception as e:
-            raise Exception(f"[{task_id}] Error in file_handler: {e}")    
-
-    def __save_output(self, content: bytes, extension: str, caller_name: str, task_id: str):
-        """
-        Helper method to save content to a file organized by date and task ID.
-        """
-        try:
-            # Extract date from task_id and format it
-            date_part = task_id.split('_')[0]
-            formatted_date = f"{date_part[:4]}-{date_part[4:6]}-{date_part[6:8]}"
-        
-            output_dir = os.path.join(self.save_to, formatted_date)
-            os.makedirs(output_dir, exist_ok=True)
-        
-            # Handle non-image files
-            if extension.lower() not in ['.png', '.jpg', '.webp']:
-                file_path = os.path.join(self.save_to, formatted_date, f"{task_id}_{caller_name}{extension}")
-                return self.__file_handler(content, file_path, task_id)
-
-            # Process image files
-            img = Image.open(BytesIO(content))
-            
-            if self.save_as == 'pil':
-                self.logger.info(f"[{task_id}] Saved output as PIL object!")
-                return img
-
-            # Set format-specific parameters
-            save_params = {}
-            
-            if self.save_as == 'webp':
-                format_name = 'WebP'
-                extension = '.webp'
-                save_params['quality'] = 90
-                
-            elif self.save_as == 'jpg':
-                format_name = 'JPEG'
-                extension = '.jpg'
-                save_params['quality'] = 95
-                if img.mode == 'RGBA':
-                    img = img.convert('RGB')
-                    
-            else:
-                format_name = 'PNG'
-                extension = '.png'
-
-            # Save image with selected format
-            output_buffer = BytesIO()
-            img.save(output_buffer, format=format_name, **save_params)
-            content = output_buffer.getvalue()
-
-            # Save to file
-            file_path = os.path.join(self.save_to, formatted_date, f"{task_id}_{caller_name}{extension}")
-            return self.__file_handler(content, file_path, task_id)
-
-        except Exception as e:
-            raise Exception(f"[{task_id}] Error in save_output: {e}")    
-
-    def __service_request(self, url: str, header: dict, files: dict, data: dict = None,
-                          delay: float = 0.5, custom: str = None, task_id: str = None):
-        """
-        Process inputs for each server connection concurrently and return results.
+        Start the API server.
 
         Parameters:
-        - url (str): URL for the service request.
-        - header (dict): Headers for the request.
-        - files (dict): Files to send with the request.
-        - data (dict): Additional data for the request.
-        - delay (float): Delay between requests.
-        - custom (str): Custom request type.
+        - host (str): Host to run the server on (default: "0.0.0.0")
+        - port (int): Port to run the server on (default: 5733)
+        - debug (bool): Enable Flask debug mode (default: False)
         """
-        
         try:
-            tx_timeout = rx_timeout = self.timeout
-            caller_name = self.__get_caller_name(task_id)
-
-            self.logger.info(f"[{task_id}] Processing {caller_name} request in {tx_timeout} seconds")
+            from .api import AtelierWebAPI
             
-            def handle_custom_response(response, custom_type):
-                try:
-                    if custom_type == "gfpgan":
-                        result = response["data"][0]["image_base64"].split(",")[1]
-                        content = base64.b64decode(result)
-                        return self.__save_output(content, ".png", caller_name, task_id)
-                    
-                    elif custom_type == "caption":
-                        result = response["caption"]
-                        self.__save_output(result.encode('utf-8'), ".txt", caller_name, task_id)
-                        return result
-                    
-                    self.logger.warning(f"[{task_id}] Invalid custom request: {custom_type}")            
-                
-                except Exception as e:
-                    self.logger.error(f"[{task_id}] Error handling {custom_type} response: {e}")
-                    return None           
-
-            def handle_streaming_response(response):
-                try:
-                    content_type = response.headers.get("Content-Type", "").lower()
-                    
-                    if "text/plain" in content_type:
-                        text_response = response.text.strip()
-                        
-                        if text_response == "NSFW content detected":
-                            self.logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
-                            return None                   
-
-                    if "json" in content_type:
-                        return response.json()
-
-                    if "text" in content_type:
-                        return response.text
-
-                    content = BytesIO()
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            content.write(chunk)
-                    
-                    content_bytes = content.getvalue()
-
-                    if len(content_bytes) <= 4096:
-                        self.logger.error(f"[{task_id}] Response is too small! (4096 bytes or less)")
-                        return None                
-
-                    if content_bytes == self.__err:
-                        self.logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
-                        return None                
-                    
-                    return self.__save_output(content_bytes, ".png", caller_name, task_id)
-
-                except Exception as e:
-                    self.logger.error(f"[{task_id}] Error handling streaming response: {e}")
-                    return None           
-
-            def request_handler(custom=None):
-                try:
-                    time.sleep(delay)
-                    start_time = time.time()
-                    
-                    if custom:
-                        custom = custom.lower()
-                        response = requests.post(
-                            url, 
-                            headers=header,
-                            data=data if custom == "gfpgan" else None,
-                            files=files,
-                            timeout=(tx_timeout, rx_timeout)
-                        )
-                        return handle_custom_response(response.json(), custom)
-                    
-                    response = requests.post(
-                        url,
-                        headers=header,
-                        files=files,
-                        timeout=(tx_timeout, rx_timeout),
-                        stream=True
-                    )
-                    
-                    if response.status_code != 200:
-                        self.logger.error(f"[{task_id}] Request failed! Status: {response.status_code} ({response.text})")
-                        return None
-                    
-                    return handle_streaming_response(response)
-                
-                except requests.exceptions.RequestException as e:
-                    self.logger.error(f"[{task_id}] Request error or timeout!")
-                    return None        
-                
-                finally:
-                    self.logger.info(f"[{task_id}] Request took {time.time() - start_time:.2f} seconds.")
-
-            return request_handler(custom)
-
+            self.save_as = 'pil'
+            self.logger.info(f"Starting API server on {host}:{port}")
+            
+            AtelierWebAPI(self, host=host, port=port, debug=debug)
+        
         except Exception as e:
-            raise Exception(f"[{task_id}] Error in service_request: {e}")    
+            error = f"Error starting API server: {e}"
+            self.logger.error(error)
+            raise RuntimeError(error)
+
+    def start_wui(self, host: str = "0.0.0.0", port: int = 5735, browser: bool = True,
+                  upload_size: str = "4MB", public: bool = False, limit: int = 10):
+        """
+        Start Atelier WebUI with all features.
+        
+        Parameters:
+        - host (str): Server host (default: "0.0.0.0")
+        - port (int): Server port (default: 5735) 
+        - browser (bool): Launch browser automatically (default: True)
+        - upload_size (str): Maximum file size for uploads (default: "4MB")
+        - public (bool): Enable public URL mode (default: False)
+        - limit (int): Maximum number of concurrent requests (default: 10)
+        """
+        try:
+            from .wui import AtelierWebUI
+            
+            self.gradio = True
+            self.logger.info(f"Starting WebUI server on {host}:{port}")
+            
+            AtelierWebUI(self, host=host, port=port, browser=browser,
+                        upload_size=upload_size, public=public, limit=limit)
+        
+        except Exception as e:
+            error = f"Error starting WebUI server: {e}"
+            self.logger.error(error)
+            raise RuntimeError(error)

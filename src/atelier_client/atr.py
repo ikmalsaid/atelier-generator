@@ -131,7 +131,15 @@
         "storybook-illustrations": "0174",
         "koda-photography": "0173",
         "mythic-fantasy": "0208",
-        "ultra-realism": "0210"
+        "ultra-realism": "0210",
+        "pencil-sketch": "0225",
+        "dark-fantasy": "0239",
+        "digital-impressionism": "0232",
+        "disney-pixar": "0234",
+        "frostinglane": "0227",
+        "niji-anime": "0235",
+        "mystic-sumi": "0233",
+        "soft-anime": "0228"
     },
     "lora_rt": {
         "none": "picture",
