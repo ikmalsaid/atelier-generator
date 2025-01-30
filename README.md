@@ -15,12 +15,12 @@ from atelier_client import AtelierClient
 
 # Initialize the client
 client = AtelierClient(
-    mode="default",    # Set startup mode (default/webui/api)
-    gradio=False,      # Enable/disable Gradio support
-    timeout=180,       # Request timeout in seconds
-    log_on=True,       # Enable logging
-    save_to="outputs", # Output directory
-    save_as="webp"     # Output format (png/webp/jpg/pil)
+    mode="default",    # Optional: Set startup mode (default/webui/api)
+    gradio=False,      # Optional: Enable/disable Gradio support
+    timeout=180,       # Optional: Request timeout in seconds
+    log_on=True,       # Optional: Enable logging
+    save_to="outputs", # Optional: Output directory
+    save_as="webp"     # Optional: Output format (png/webp/jpg/pil)
 )
 
 # Generate an image
