@@ -1475,7 +1475,6 @@ class AtelierClient:
             from .api import AtelierWebAPI
             
             self.save_as = 'pil'
-            self.logger.info(f"Starting API server on {host}:{port}")
             
             AtelierWebAPI(self, host=host, port=port, debug=debug)
         
@@ -1501,7 +1500,6 @@ class AtelierClient:
             from .wui import AtelierWebUI
             
             self.gradio = True
-            self.logger.info(f"Starting WebUI server on {host}:{port}")
             
             AtelierWebUI(self, host=host, port=port, browser=browser,
                         upload_size=upload_size, public=public, limit=limit)
