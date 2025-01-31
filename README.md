@@ -205,13 +205,34 @@ image_caption(image)          # Required: Source image
 image_prompt(image)           # Required: Source image
 ```
 
+### Web UI and API
+
+```python
+# Start Web UI
+client.start_wui(
+    host="0.0.0.0",           # Optional: Server host
+    port=5735,                # Optional: Server port
+    browser=True,             # Optional: Launch web browser
+    upload_size="4MB",        # Optional: Maximum upload size
+    public=False,             # Optional: Enable public URL mode
+    limit=10                  # Optional: Maximum concurrent requests
+)
+
+# Start Web API
+client.start_api(
+    host="0.0.0.0",           # Optional: Server host
+    port=5733,                # Optional: Server port
+    debug=False               # Optional: Enable debug mode
+)
+```
+
 ## Configuration Options
 
 ### Startup Mode
 
 - `default` - Default mode suitable for function calling
-- `webui` - Starts Web UI with all features (powered by Gradio)
-- `api` - Starts Web API with all endpoints (powered by Flask)
+- `webui` - Starts Web UI with all features with default settings (powered by Gradio)
+- `api` - Starts Web API with all endpoints and default settings (powered by Flask)
 
 ### Output Formats
 
