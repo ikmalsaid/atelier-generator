@@ -516,7 +516,7 @@ class AtelierClient:
                     self.logger.warning(f"[{task_id}] Invalid custom request: {custom_type}")            
                 
                 except Exception as e:
-                    self.logger.error(f"[{task_id}] Error handling {custom_type} response: {e}")
+                    self.logger.error(f"[{task_id}] Error handling {custom_type} response!")
                     return None           
 
             def handle_streaming_response(response):
