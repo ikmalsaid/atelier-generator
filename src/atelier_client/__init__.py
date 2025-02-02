@@ -66,7 +66,7 @@ class AtelierClient:
         except Exception as e:
             error = f"Error in init_checks: {e}"
             self.logger.error(error)
-            raise RuntimeError(error)
+            raise
    
     def __startup_mode(self, mode: str):
         """
@@ -85,7 +85,7 @@ class AtelierClient:
         except Exception as e:
             error = f"Error in startup_mode: {e}"
             self.logger.error(error)
-            raise RuntimeError(error)
+            raise
    
     def __online_check(self, url: str = 'https://www.google.com', timeout: int = 10):
         """
@@ -97,7 +97,7 @@ class AtelierClient:
         except Exception as e:
             error = f"No internet connection available! Please check your network connection."
             self.logger.error(error)
-            raise RuntimeError(error)
+            raise
 
     def __load_preset(self, preset_path: str = "atr.py"):
         """
@@ -151,7 +151,7 @@ class AtelierClient:
         except Exception as e:
             error = f"Error in load_atr_preset: {e}"
             self.logger.error(error)
-            raise RuntimeError(error)
+            raise
     
     def __load_locale(self):
         """
@@ -168,7 +168,7 @@ class AtelierClient:
         except Exception as e:
             error = f"Error in load_locale: {e}"
             self.logger.error(error)
-            raise RuntimeError(error)
+            raise
 
     def __load_lists(self):
         """
@@ -197,7 +197,7 @@ class AtelierClient:
         except Exception as e:
             error = f"Error in load_lists: {e}"
             self.logger.error(error)
-            raise RuntimeError(error)
+            raise
 
     def __random_seed_generator(self, seed: int = 0, task_id: str = None):
         """
@@ -221,9 +221,8 @@ class AtelierClient:
                 return str(seed)
         
         except Exception as e:
-            error = f"[{task_id}] Error in random_seed_generator: {e}"
-            self.logger.error(error)
-            raise Exception(error)
+            self.logger.error(f"[{task_id}] Error in random_seed_generator: {e}")
+            raise
 
     def __lora_checker(self, model_name: str, lora_svi: str = "none", lora_flux: str = "none", task_id: str = None):
         """
@@ -236,8 +235,8 @@ class AtelierClient:
         - task_id (str): Unique identifier for the task.
         """
         try:
-            validated_svi = lora_svi
-            validated_flux = lora_flux
+            validated_svi = lora_svi if lora_svi else "none"
+            validated_flux = lora_flux if lora_flux else "none"
 
             if model_name in self.list_atr_models_flux:
                 if lora_svi not in ["none", None]:
@@ -258,9 +257,8 @@ class AtelierClient:
             return validated_svi, validated_flux
 
         except Exception as e:
-            error = f"[{task_id}] Error in lora_checker: {e}"
-            self.logger.error(error)
-            raise Exception(error)
+            self.logger.error(f"[{task_id}] Error in lora_checker: {e}")
+            raise
 
     def __prompt_processor(self, prompt: str = "", negative_prompt: str = "", style_name: str = "none",
                            lora_svi: str = "none", task_id: str = None):
@@ -287,7 +285,9 @@ class AtelierClient:
                     neg = neg_sty.replace("{negative_prompt}", neg)
             
             except Exception as e:
-                self.logger.warning(f"[{task_id}] {e} not valid style preset!")
+                error = f"[{task_id}] {e} not valid style preset!"
+                self.logger.warning(error)
+                raise ValueError(error)
             
             try:
                 if lora_svi is not None and lora_svi != "none":
@@ -298,14 +298,15 @@ class AtelierClient:
                     neg = neg_lora.replace("{negative_prompt}", neg)
             
             except Exception as e:
-                self.logger.warning(f"[{task_id}] {e} not valid lora_svi preset!")
+                error = f"[{task_id}] {e} not valid lora_svi preset!"
+                self.logger.warning(error)
+                raise ValueError(error)
             
             return pos, neg
         
         except Exception as e:
-            error = f"[{task_id}] Error in prompt_processor: {e}"
-            self.logger.error(error)
-            raise Exception(error)
+            self.logger.error(f"[{task_id}] Error in prompt_processor: {e}")
+            raise
 
     def __image_processor(self, image, gr_editor_type: str = None, gr_mask_layer: int = 0, resize: bool = False,
                           max_width: int = 1700, max_height: int = 1000, task_id: str = None):
@@ -380,9 +381,8 @@ class AtelierClient:
             return byte_array
         
         except Exception as e:
-            error = f"[{task_id}] Error in image_processor: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_processor: {e}")
+            raise
 
     def __get_task_id(self):
         """
@@ -399,7 +399,8 @@ class AtelierClient:
             return task_id
         
         except Exception as e:
-            raise Exception(f"Error in get_task_id: {e}")    
+            self.logger.error(f"Error in get_task_id: {e}")
+            raise
 
     def __get_caller_name(self, task_id: str):
         """
@@ -410,7 +411,8 @@ class AtelierClient:
             return caller_name
         
         except Exception as e:
-            raise Exception(f"[{task_id}] Error in get_caller_name: {e}")     
+            self.logger.error(f"[{task_id}] Error in get_caller_name: {e}")
+            raise
 
     def __file_handler(self, content: bytes, file_path: str, task_id: str):
         """
@@ -424,7 +426,8 @@ class AtelierClient:
             return file_path
         
         except Exception as e:
-            raise Exception(f"[{task_id}] Error in file_handler: {e}")    
+            self.logger.error(f"[{task_id}] Error in file_handler: {e}")
+            raise
 
     def __save_output(self, content: bytes, extension: str, caller_name: str, task_id: str):
         """
@@ -479,7 +482,8 @@ class AtelierClient:
             return self.__file_handler(content, file_path, task_id)
 
         except Exception as e:
-            raise Exception(f"[{task_id}] Error in save_output: {e}")    
+            self.logger.error(f"[{task_id}] Error in save_output: {e}")
+            raise
 
     def __service_request(self, url: str, header: dict, files: dict, data: dict = None,
                           delay: float = 0.5, custom: str = None, task_id: str = None):
@@ -597,7 +601,8 @@ class AtelierClient:
             return request_handler(custom)
 
         except Exception as e:
-            raise Exception(f"[{task_id}] Error in service_request: {e}")    
+            self.logger.error(f"[{task_id}] Error in service_request: {e}")
+            raise
 
     def image_generate(self, prompt: str, negative_prompt: str = "", model_name: str = "flux-turbo",
                        image_size: str = "1:1", lora_svi: str = "none", lora_flux: str = "none",
@@ -656,9 +661,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
         
         except Exception as e:
-            error = f"[{task_id}] Error in image_generate: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_generate: {e}")
+            raise
 
     def image_variation(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "flux-turbo",
                         image_size: str = "1:1", strength: str = "high", lora_svi: str = "none", 
@@ -737,9 +741,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
         
         except Exception as e:
-            error = f"[{task_id}] Error in image_variation: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_variation: {e}")
+            raise
 
     def image_structure(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "svi-realistic",
                         image_size: str = "1:1", strength: str = "high", lora_svi: str = "none",
@@ -803,9 +806,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
         
         except Exception as e:
-            error = f"[{task_id}] Error in image_structure: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_structure: {e}")
+            raise
 
     def image_facial(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "svi-realistic",
                     image_size: str = "1:1", strength: str = "high", lora_svi: str = "none",
@@ -868,9 +870,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
         
         except Exception as e:
-            error = f"[{task_id}] Error in image_facial: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_facial: {e}")
+            raise
 
     def image_style(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "svi-realistic",
                     image_size: str = "1:1", strength: str = "high", lora_svi: str = "none",
@@ -933,9 +934,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
         
         except Exception as e:
-            error = f"[{task_id}] Error in image_style: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_style: {e}")
+            raise
 
     def image_outpaint(self, image: str, image_size: str = "16:9"):
         """
@@ -967,9 +967,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
             
         except Exception as e:
-            error = f"[{task_id}] Error in image_outpaint: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_outpaint: {e}")
+            raise
 
     def realtime_canvas(self, image: str, prompt: str, negative_prompt: str = "", lora_rt: str = "none",
                         strength: float = 0.9, image_seed: int = 0, style_name: str = "none"):
@@ -1018,9 +1017,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in realtime_canvas: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in realtime_canvas: {e}")
+            raise
 
     def realtime_generate(self, prompt: str, negative_prompt: str = "", image_size: str = "1:1",
                           lora_rt: str = "none", image_seed: int = 0, style_name: str = "none"):
@@ -1065,9 +1063,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in realtime_generate: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in realtime_generate: {str(e)}")
+            raise
 
     def image_inpaint(self, image: str, prompt: str, mask: str = None, style_name: str = "none"):
         """
@@ -1116,9 +1113,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in image_inpaint: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_inpaint: {str(e)}")
+            raise
 
     def image_erase(self, image: str, mask: str = None):
         """
@@ -1161,9 +1157,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in image_erase: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_erase: {str(e)}")
+            raise
 
     def image_enhance(self, image: str, prompt: str = "", negative_prompt: str = "", creativity: float = 0.3,
                       resemblance: float = 0.9, hdr: float = 0, style_name: str = "none"):
@@ -1210,9 +1205,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in image_enhance: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_enhance: {str(e)}")
+            raise
 
     def image_controlnet(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "sd-toon", 
                          controlnet: str = "scribble", strength: int = 70, cfg: float = 9.0, 
@@ -1273,9 +1267,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in image_controlnet: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_controlnet: {str(e)}")
+            raise
 
     def face_gfpgan(self, image: str, model_version: str = "1.3"):
         """
@@ -1313,9 +1306,8 @@ class AtelierClient:
             return self.__service_request(url, header, files, data, custom = "gfpgan", task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in face_gfpgan: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in face_gfpgan: {str(e)}")
+            raise
 
     def face_codeformer(self, image: str):
         """
@@ -1342,9 +1334,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in face_codeformer: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in face_codeformer: {str(e)}")
+            raise
 
     def image_upscale(self, image: str):
         """
@@ -1371,9 +1362,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in image_upscale: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_upscale: {str(e)}")
+            raise
 
     def image_bgremove(self, image: str):
         """
@@ -1400,9 +1390,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in image_bgremove: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_bgremove: {str(e)}")
+            raise
 
     def image_caption(self, image: str):
         """
@@ -1428,9 +1417,8 @@ class AtelierClient:
             return self.__service_request(url, header, body, custom="caption", task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in image_caption: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_caption: {str(e)}")
+            raise
 
     def image_prompt(self, image: str):
         """
@@ -1457,13 +1445,12 @@ class AtelierClient:
             return self.__service_request(url, header, body, task_id = task_id)
 
         except Exception as e:
-            error = f"[{task_id}] Error in image_prompt: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"[{task_id}] Error in image_prompt: {str(e)}")
+            raise
 
     def start_api(self, host: str = "0.0.0.0", port: int = 5733, debug: bool = False):
         """
-        Start the API server.
+        Start the API server with all endpoints.
 
         Parameters:
         - host (str): Host to run the server on (default: "0.0.0.0")
@@ -1478,10 +1465,9 @@ class AtelierClient:
             AtelierWebAPI(self, host=host, port=port, debug=debug)
         
         except Exception as e:
-            error = f"Error starting API server: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
-
+            self.logger.error(f"WebAPI error: {str(e)}")
+            raise
+        
     def start_wui(self, host: str = "0.0.0.0", port: int = 5735, browser: bool = True,
                   upload_size: str = "4MB", public: bool = False, limit: int = 10):
         """
@@ -1504,6 +1490,5 @@ class AtelierClient:
                         upload_size=upload_size, public=public, limit=limit)
         
         except Exception as e:
-            error = f"Error starting WebUI server: {e}"
-            self.logger.error(error)
-            raise RuntimeError(error)
+            self.logger.error(f"WebUI error: {str(e)}")
+            raise

@@ -770,6 +770,5 @@ def AtelierWebAPI(client, host: str = "0.0.0.0", port: int = 5733, debug: bool =
         app.run(host=host, port=port, debug=debug)
     
     except Exception as e:
-        error = f"Startup error: {e}"
-        client.logger.error(error)
-        raise RuntimeError(error)
+        client.logger.error(f"{str(e)}")
+        raise

@@ -868,6 +868,5 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Tru
         )
         
     except Exception as e:
-        error = f"Startup error: {e}"
-        client.logger.error(error)
-        raise RuntimeError(error)
+        client.logger.error(f"{str(e)}")
+        raise
