@@ -128,18 +128,22 @@
         "instagram": "0209",
         "surreal-tones": "0196",
         "sierra-graphics": "0168",
-        "storybook-illustrations": "0174",
+        "storybook-style": "0174",
         "koda-photography": "0173",
         "mythic-fantasy": "0208",
         "ultra-realism": "0210",
         "pencil-sketch": "0225",
         "dark-fantasy": "0239",
-        "digital-impressionism": "0232",
+        "digital-impression": "0232",
         "disney-pixar": "0234",
         "frostinglane": "0227",
         "niji-anime": "0235",
         "mystic-sumi": "0233",
-        "soft-anime": "0228"
+        "soft-anime": "0228",
+        "mooniverse": "0230",
+        "film-portraits": "0236",
+        "boreal-raw": "0223",
+        "daubrez-painterly": "0241"
     },
     "lora_rt": {
         "none": "picture",
@@ -1864,6 +1868,74 @@
         "v3-scribble": {
         "prompt": "{prompt}, Scribble, drawing, scribble, illustration, line drawing",
         "negative_prompt": "{negative_prompt}"
+        },
+        "v4-3d-render": {
+        "prompt": "{prompt}, Highly realistic 3D rendering, smooth textures, high-resolution details, dramatic lighting, precise shadows, polished finish, depth and dimension, immersive visual style",
+        "negative_prompt": "{negative_prompt}"
+        },
+        "v4-cartoon": {
+            "prompt": "{prompt}, Bright and colorful cartoon style, bold outlines, exaggerated features, playful characters, simplified shapes, lively and animated atmosphere, vibrant color palette",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-comic": {
+            "prompt": "{prompt}, Comic book style, thick black outlines, bold and expressive facial features, dramatic shading, speech bubbles, action lines, vintage print textures, vibrant colors",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-japanese": {
+            "prompt": "{prompt}, Vintage Japanese art style, traditional woodblock print textures, muted color palette, intricate linework, delicate shading, scenic landscapes, cultural motifs",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-watercolor": {
+            "prompt": "{prompt}, Soft watercolor style, gentle brushstrokes, delicate color blending, light and airy textures, translucent layers, pastel and muted hues, flowing and organic feel",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-illustration": {
+            "prompt": "{prompt}, Detailed illustration style, fine linework, artistic shading, balanced color palette, hand-drawn textures, lively characters, stylized backgrounds, creative composition",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-sketch": {
+            "prompt": "{prompt}, Detailed pencil sketch, fine line textures, soft shading, monochrome or muted tones, cross-hatching, realistic proportions, raw and organic look, hand-drawn feel",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-cinematic": {
+            "prompt": "{prompt}, Low-key cinematic lighting, deep shadows, high contrast, moody and dramatic atmosphere, muted color palette, focused highlights, intense and immersive look",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-dark-sci-fi": {
+            "prompt": "{prompt}, Dark sci-fi theme, futuristic elements, cold metallic colors, neon glows, advanced technology motifs, dramatic lighting, dystopian atmosphere, complex machinery",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-retro": {
+            "prompt": "{prompt}, Retro wave aesthetic, neon pinks and blues, glowing grid patterns, 1980s-inspired elements, futuristic cityscapes, synthwave vibe, nostalgic color palette, electric energy",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-pixel-art": {
+            "prompt": "{prompt}, Classic pixel art style, blocky and low-resolution textures, vibrant color palette, retro video game feel, minimal shading, detailed characters and scenes, nostalgic charm",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-oil-painting": {
+            "prompt": "{prompt}, Traditional oil painting style, rich color palette, textured brushstrokes, layered details, deep shadows and highlights, classical composition, warm and realistic tones",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-nature": {
+            "prompt": "{prompt}, Nature-inspired, earthy color palette, organic textures, lush landscapes, natural light, serene and harmonious atmosphere, realistic plants and animals, outdoor scenery",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-product": {
+            "prompt": "{prompt}, Professional product photography, sharp focus, clean and minimalist background, high detail, controlled lighting, sleek and polished presentation, commercial style",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-fantasy": {
+            "prompt": "{prompt}, Whimsical fantasy cartoon style, magical creatures, exaggerated features, playful colors, enchanting atmosphere, stylized landscapes, mythical and otherworldly elements",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-dark-light": {
+            "prompt": "{prompt}, Dreamlike dark light setting, surreal atmosphere, soft glows, muted and moody colors, shadowy landscapes, haunting yet enchanting visuals, ethereal and mystical feel",
+            "negative_prompt": "{negative_prompt}"
+        },
+        "v4-linework": {
+            "prompt": "{prompt}, Detailed linework style, intricate outlines, clean monochromatic palette, precise shading, complex patterns, minimalist backgrounds, refined and structured aesthetic",
+            "negative_prompt": "{negative_prompt}"
         }
     },
     "error": [
