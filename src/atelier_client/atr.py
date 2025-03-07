@@ -29,7 +29,8 @@
     "models_flux": {
         "flux-turbo": "309",
         "flux-hd": "310",
-        "flux-text": "311"
+        "flux-text": "311",
+        "flux-ultra": "409"
     },
     "models_svi": {
         "svi-turbo": "304",
