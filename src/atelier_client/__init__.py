@@ -99,7 +99,7 @@ class AtelierClient:
             self.logger.error(error)
             raise
 
-    def __load_preset(self, preset_path: str = "atr.py"):
+    def __load_preset(self, preset_path: str = "data.py"):
         """
         Loads the required preset.
 
@@ -1482,7 +1482,7 @@ class AtelierClient:
         - limit (int): Maximum number of concurrent requests (default: 10)
         """
         try:
-            from .wui import AtelierWebUI
+            from .webui import AtelierWebUI
             
             self.gradio = True
             

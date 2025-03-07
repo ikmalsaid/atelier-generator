@@ -764,7 +764,7 @@ def AtelierWebAPI(client, host: str = "0.0.0.0", port: int = 5733, debug: bool =
         @app.route('/', methods=['GET'])
         def api_index():
             """Render the API documentation page"""
-            return render_template('idx.py')
+            return render_template('index.py')
 
         client.logger.info(f"Starting API server on {host}:{port}")
         app.run(host=host, port=port, debug=debug)
