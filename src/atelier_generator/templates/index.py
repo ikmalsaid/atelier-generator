@@ -206,7 +206,7 @@
 <body>
     <div class="container">
         <div class="card">
-            <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem;">Atelier Client API Server</h1>
+            <h1 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem;">Atelier Generator API Server</h1>
             <p style="color: var(--muted-foreground);">Copyright (C) 2025 Ikmal Said. All rights reserved</p>
             <button onclick="openTestDialog()" class="button button-primary" style="margin-top: 1rem;">
                 Test Image Generation

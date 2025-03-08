@@ -11,9 +11,9 @@ from PIL import Image
 from io import BytesIO
 from datetime import datetime
 from importlib import resources
-from colorpaws import setup_logger
+from colorpaws import configure
 
-class AtelierClient:
+class AtelierGenerator:
     """Copyright (C) 2025 Ikmal Said. All rights reserved."""
     def __init__(self, mode: str = "default", gradio: bool = False, timeout: int = 180, log_on: bool = True,
                  log_to: str = None, save_to: str = "outputs", save_as: str = "webp"):
@@ -29,7 +29,7 @@ class AtelierClient:
         - save_to (str): Directory to save outputs.
         - save_as (str): Output format ('png', 'webp', 'jpg', 'pil').
         """        
-        self.logger = setup_logger(
+        self.logger = configure(
             name=self.__class__.__name__,
             log_on=log_on,
             log_to=log_to
@@ -44,7 +44,7 @@ class AtelierClient:
         self.__load_lists()
 
         self.__init_checks(save_to, save_as)
-        self.logger.info(f"Atelier Client is now ready!")
+        self.logger.info(f"{self.__class__.__name__} is now ready!")
         
         if mode != "default":
             self.__startup_mode(mode)

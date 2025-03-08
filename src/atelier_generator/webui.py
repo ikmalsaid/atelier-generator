@@ -41,17 +41,6 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Tru
         )
 
         css = '''
-        @import url('https://db.onlinewebfonts.com/c/91365a119c448bf9da6d8f710e3bdda6?family=Nokia+Sans+S60+Regular');
-
-        @font-face {
-            font-family: "Nokia Sans S60 Regular";
-            src: url('https://db.onlinewebfonts.com/c/91365a119c448bf9da6d8f710e3bdda6?family=Nokia+Sans+S60+Regular') format('woff2');
-        }
-
-        * {
-            font-family: "Nokia Sans S60 Regular";
-        }
-
         ::-webkit-scrollbar {
             display: none;
         }
@@ -244,11 +233,11 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Tru
         }
         """
                 
-        with gr.Blocks(title=f"Atelier Client Web UI", css=css, analytics_enabled=False, theme=system_theme, fill_height=True).queue(default_concurrency_limit=limit) as demo:
+        with gr.Blocks(title=f"Atelier Generator Web UI", css=css, analytics_enabled=False, theme=system_theme, fill_height=True).queue(default_concurrency_limit=limit) as demo:
             
             with gr.Row():
                 with gr.Column(scale=1):
-                    Markdown(f"## <br><center>Atelier Client Web UI")
+                    Markdown(f"## <br><center>Atelier Generator Web UI")
                     Markdown(f"<center>Copyright (C) {datetime.now().year} Ikmal Said. All rights reserved")
                 
                 # with gr.Column(scale=0):
