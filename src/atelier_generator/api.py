@@ -4,10 +4,10 @@ import base64
 
 def AtelierWebAPI(client, host: str = "0.0.0.0", port: int = 5733, debug: bool = False):
     """
-    Start Client API server with all endpoints.
+    Start Atelier Generator API server with all endpoints.
     
     Parameters:
-    - client (Client): Atelier Client instance
+    - client (Client): Atelier Generator instance
     - host (str): Host to run the server on
     - port (int): Port to run the server on
     - debug (bool): Enable Flask debug mode

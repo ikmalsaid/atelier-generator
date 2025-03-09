@@ -5,10 +5,10 @@ from gradio_modal import Modal
 def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = True,
                  upload_size: str = "4MB", public: bool = False, limit: int = 10):
     """ 
-    Start Atelier WebUI with all features.
+    Start Atelier Generator Web UI with all features.
     
     Parameters:
-    - client (Client): Atelier Client instance
+    - client (Client): Atelier Generator instance
     - host (str): Server host
     - port (int): Server port
     - browser (bool): Launch browser automatically
