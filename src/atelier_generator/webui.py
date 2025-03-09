@@ -233,7 +233,7 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Tru
         }
         """
                 
-        with gr.Blocks(title=f"Atelier Generator Web UI", css=css, analytics_enabled=False, theme=system_theme, fill_height=True).queue(default_concurrency_limit=limit) as demo:
+        with gr.Blocks(title=f"Atelier Generator", css=css, analytics_enabled=False, theme=system_theme, fill_height=True).queue(default_concurrency_limit=limit) as demo:
             
             with gr.Row():
                 with gr.Column(scale=1):
@@ -846,6 +846,7 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Tru
                         )
             
             Markdown("<center>Atelier can make mistakes. Check important info. Request errors will return None.")
+            Markdown("<center>")
 
         demo.launch(
             server_name=host,
