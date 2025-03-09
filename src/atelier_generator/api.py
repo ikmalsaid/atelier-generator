@@ -30,6 +30,11 @@ def AtelierWebAPI(client, host: str = "0.0.0.0", port: int = 5733, debug: bool =
                 client.logger.error(f"Error in data_url_processor: {e}")
                 return None
 
+        @app.route('/', methods=['GET'])
+        def api_index():
+            """Render the API documentation page"""
+            return render_template('index.py')
+
         @app.route('/v1/api/image/generate', methods=['POST'])
         def image_generate_api():
             """
@@ -760,11 +765,6 @@ def AtelierWebAPI(client, host: str = "0.0.0.0", port: int = 5733, debug: bool =
             except Exception as e:
                 client.logger.error(f"Error in image_prompt_api: {e}")
                 return jsonify({"success": False, "error": str(e)}), 400
-
-        @app.route('/', methods=['GET'])
-        def api_index():
-            """Render the API documentation page"""
-            return render_template('index.py')
 
         client.logger.info(f"Starting API server on {host}:{port}")
         app.run(host=host, port=port, debug=debug)

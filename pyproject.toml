@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "atelier-client"
-version = "25.1"
+name = "atelier-generator"
+version = "25.3"
 authors = [
   { name="ikmalsaid", email="ikmalsaid@gmail.com" },
 ]
@@ -25,10 +25,10 @@ dependencies = [
   "flask"
 ]
 keywords = [
-  "atelier-client",
-  "atelier_client"
+  "atelier-generator",
+  "atelier_generator"
 ]
 
 [project.urls]
-Homepage = "https://github.com/ikmalsaid/atelier-client"
-Issues = "https://github.com/ikmalsaid/atelier-client/issues"
+Homepage = "https://github.com/ikmalsaid/atelier-generator"
+Issues = "https://github.com/ikmalsaid/atelier-generator/issues"

@@ -1,296 +1,257 @@
-# atelier-client
+# atelier-generator
 
 A comprehensive toolkit for state-of-the-art AI image generation compatible with all devices.
 
 ## Installation
 
 ```bash
-pip install atelier-client
+pip install atelier-generator
 ```
 
-## Basic Usage
+## Key Features
+
+- 🎨 **Image Generation**
+  - Text-to-Image Generation
+  - Image Variations
+  - Structural & Facial Guidance
+  - Style Transfer & ControlNet
+- 🛠️ **Image Editing**
+  - Face Enhancement (GFPGAN/CodeFormer)
+  - Background Removal
+  - Image Upscaling
+  - Object Erasing & Inpainting
+- ⚡ **Real-time Features**
+  - RT Image Generation
+  - Interactive Canvas
+  - Image Outpainting
+  - Image Analysis (Caption/Prompt)
+
+## Usage
+
+### Python Library
 
 ```python
-from atelier_client import AtelierClient
+from atelier_generator import AtelierGenerator
 
-# Initialize the client
-client = AtelierClient(
-    mode="default",    # Optional: Set startup mode (default/webui/api)
-    gradio=False,      # Optional: Enable/disable Gradio support
-    timeout=180,       # Optional: Request timeout in seconds
-    log_on=True,       # Optional: Enable logging
-    save_to="outputs", # Optional: Output directory
-    save_as="webp"     # Optional: Output format (png/webp/jpg/pil)
+# Initialize
+atelier = AtelierGenerator(
+    mode="default", # Mode (default/webui/api)
+    gradio=False, # Enable Gradio support
+    timeout=180, # Request timeout (seconds)
+    log_on=True, # Enable logging
+    save_to="outputs", # Output directory
+    save_as="webp" # Output format (png/webp/jpg/pil)
 )
 
-# Generate an image
-result = client.image_generate(
-    prompt="a beautiful landscape"
-)
-```
-
-## Features
-
-### Image Generation
-
-```python
-# High quality image generation
-image_generate(
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    model_name="flux-turbo",   # Optional: Model to use
-    image_size="1:1",         # Optional: Output image size ratio
-    lora_svi=None,            # Optional: LoRA SVI preset
-    lora_flux=None,            # Optional: LoRA Flux preset
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
+# Basic image generation
+result = atelier.image_generate(
+    prompt="a beautiful landscape",
+    negative_prompt="", # Optional negative prompt
+    model_name="flux-turbo", # Model selection
+    image_size="1:1", # Output size ratio
+    lora_svi=None, # LoRA SVI preset
+    lora_flux=None, # LoRA Flux preset
+    image_seed=0, # Generation seed
+    style_name=None # Style preset
 )
 
-# Generate variations of an input image
-image_variation(
-    image,                    # Required: Source image
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    model_name="flux-turbo",   # Optional: Model to use
-    image_size="1:1",         # Optional: Output image size ratio
-    strength=None,            # Optional: Variation strength
-    lora_svi=None,            # Optional: LoRA SVI preset
-    lora_flux=None,            # Optional: LoRA Flux preset
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
+# Image variation
+result = atelier.image_variation(
+    image="source.jpg", # Source image
+    prompt="convert to anime",
+    negative_prompt="", # Optional negative prompt
+    model_name="flux-turbo", # Model selection
+    image_size="1:1", # Output size ratio
+    strength="high", # Variation strength (low/medium/high)
+    lora_svi=None, # LoRA SVI preset
+    lora_flux=None, # LoRA Flux preset
+    image_seed=0, # Generation seed
+    style_name=None # Style preset
 )
 
-# Instant image generation
-realtime_generate(
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    image_size="1:1",         # Optional: Output image size ratio
-    lora_rt=None,             # Optional: LoRA RT preset
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
+# Structural guidance
+result = atelier.image_structure(
+    image="structure.jpg", # Source image
+    prompt="enhance details",
+    negative_prompt="", # Optional negative prompt
+    model_name="svi-realistic", # Model selection
+    image_size="1:1", # Output size ratio
+    strength="high", # Guide strength (low/medium/high)
+    lora_svi=None,  # LoRA SVI preset
+    image_seed=0, # Generation seed
+    style_name=None # Style preset
 )
 
-# Instant drawing canvas
-realtime_canvas(
-    image,                    # Required: Source image
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    lora_rt=None,             # Optional: LoRA RT preset
-    strength=0.9,             # Optional: Creativity level
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
+# Face enhancement
+result = atelier.face_gfpgan(
+    image="face.jpg",
+    model_version="1.3" # Model version (1.2/1.3)
 )
-```
-
-### Image Editing
-
-```python
-# Generative image upscaler
-image_enhance(
-    image,                    # Required: Source image
-    prompt=None,              # Optional: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    creativity=0.3,           # Optional: Creativity level
-    resemblance=1,            # Optional: Resemblance level
-    hdr=0,                    # Optional: HDR strength
-    style_name=None           # Optional: Style preset
+result = atelier.face_codeformer(
+    image="face.jpg"
 )
 
-# Standard image upscaling
-image_upscale(image)          # Required: Source image
-
-# Inpaint elements into an image
-image_inpaint(
-    image,                    # Required: Source image
-    mask,                     # Required: Mask image
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    strength=0.5,             # Optional: Inpainting strength
-    cfg=9.0,                  # Optional: Prompt guidance scale
-    style_name=None           # Optional: Style preset
+# Image editing
+result = atelier.image_enhance(
+    image="photo.jpg",
+    prompt="enhance quality", # Optional prompt
+    negative_prompt="", # Optional negative prompt
+    creativity=0.3, # Creativity level (0.0-1.0)
+    resemblance=1.0, # Resemblance level (0.0-1.0)
+    hdr=0.0, # HDR strength (0.0-1.0)
+    style_name=None # Style preset
 )
 
-# Remove elements from an image
-image_erase(
-    image,                    # Required: Source image
-    mask,                     # Required: Mask image
-    cfg=9.0                   # Optional: Prompt guidance scale
+result = atelier.image_inpaint(
+    image="image.jpg",
+    mask="mask.jpg", # Mask image
+    prompt="fill with trees",
+    style_name=None # Style preset
 )
 
-# Remove background from images
-image_bgremove(image)         # Required: Source image
-
-# Extend images beyond their borders
-image_outpaint(
-    image,                    # Required: Source image
-    image_size="16:9"         # Optional: Output image size ratio
-)
-```
-
-### Style & Control
-
-```python
-# Generate images using structural guidance
-image_structure(
-    image,                    # Required: Source image
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    model_name="svi-turbo",   # Optional: Model to use
-    image_size="1:1",         # Optional: Output image size ratio
-    strength=None,            # Optional: Guidance strength
-    lora_svi=None,            # Optional: LoRA SVI preset
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
+result = atelier.image_erase(
+    image="image.jpg",
+    mask="mask.jpg" # Mask image
 )
 
-# Generate images using facial guidance
-image_facial(
-    image,                    # Required: Source image
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    model_name="svi-turbo",   # Optional: Model to use
-    image_size="1:1",         # Optional: Output image size ratio
-    strength=None,            # Optional: Guidance strength
-    lora_svi=None,            # Optional: LoRA SVI preset
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
+result = atelier.image_bgremove(
+    image="photo.jpg"
 )
 
-# Generate images using style guidance
-image_style(
-    image,                    # Required: Source image
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    model_name="svi-turbo",   # Optional: Model to use
-    image_size="1:1",         # Optional: Output image size ratio
-    strength=None,            # Optional: Style strength
-    lora_svi=None,            # Optional: LoRA SVI preset
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
+result = atelier.image_upscale(
+    image="small.jpg"
 )
 
-# Control image generation with various methods
-image_controlnet(
-    image,                    # Required: Source image
-    prompt,                   # Required: Text prompt
-    negative_prompt=None,     # Optional: Negative prompt
-    model_name="sd-toon",     # Optional: Model to use
-    controlnet="scribble",    # Optional: Control type
-    strength=70,              # Optional: Control strength
-    cfg=9.0,                  # Optional: Prompt guidance scale
-    image_seed=None,          # Optional: Generation seed
-    style_name=None           # Optional: Style preset
+result = atelier.image_outpaint(
+    image="image.jpg",
+    image_size="16:9" # Output size ratio
 )
 
-### Face Enhancement
-
-```python
-# Restore faces using GFPGAN
-face_gfpgan(
-    image,                    # Required: Source image
-    model_version="1.3"       # Optional: Model version
+# Real-time features
+result = atelier.realtime_generate(
+    prompt="quick sketch",
+    negative_prompt="", # Optional negative prompt
+    image_size="1:1", # Output size ratio
+    lora_rt=None, # LoRA RT preset
+    image_seed=0, # Generation seed
+    style_name=None # Style preset
 )
 
-# Restore faces using CodeFormer
-face_codeformer(image)        # Required: Source image
-```
-
-### Image Analysis
-
-```python
-# Generate descriptive captions
-image_caption(image)          # Required: Source image
-
-# Convert images to prompts
-image_prompt(image)           # Required: Source image
-```
-
-### Web UI and API
-
-```python
-# Start Web UI
-client.start_wui(
-    host="0.0.0.0",           # Optional: Server host
-    port=5735,                # Optional: Server port
-    browser=True,             # Optional: Launch web browser
-    upload_size="4MB",        # Optional: Maximum upload size
-    public=False,             # Optional: Enable public URL mode
-    limit=10                  # Optional: Maximum concurrent requests
+result = atelier.realtime_canvas(
+    image="canvas.jpg", # Source image
+    prompt="enhance drawing",
+    negative_prompt="", # Optional negative prompt
+    lora_rt=None, # LoRA RT preset
+    strength=0.9, # Creativity level (0.0-1.0)
+    image_seed=0, # Generation seed
+    style_name=None # Style preset
 )
 
-# Start Web API
-client.start_api(
-    host="0.0.0.0",           # Optional: Server host
-    port=5733,                # Optional: Server port
-    debug=False               # Optional: Enable debug mode
+# Image analysis
+caption = atelier.image_caption(
+    image="photo.jpg"
+)
+prompt = atelier.image_prompt(
+    image="photo.jpg"
+)
+
+# ControlNet features
+result = atelier.image_controlnet(
+    image="sketch.jpg",
+    prompt="convert to art",
+    negative_prompt="", # Optional negative prompt
+    model_name="sd-toon", # Model selection
+    controlnet="scribble", # Control type (scribble/pose/line-art/depth/canny)
+    strength=70, # Control strength (0-100)
+    cfg=9.0, # Prompt guidance scale
+    image_seed=0, # Generation seed
+    style_name=None # Style preset
 )
 ```
 
-## Configuration Options
+### Web UI
 
-### Startup Mode
+Start the Gradio web interface:
 
-- `default` - Default mode suitable for function calling
-- `webui` - Starts Web UI with all features with default settings (powered by Gradio)
-- `api` - Starts Web API with all endpoints and default settings (powered by Flask)
+```python
+atelier = AtelierGenerator(mode="webui")
+# OR
+atelier = AtelierGenerator()
+atelier.start_wui(
+    host="0.0.0.0", # Server host
+    port=5735, # Server port
+    browser=True, # Launch browser
+    upload_size="4MB", # Max upload size
+    public=False, # Enable public URL
+    limit=10 # Max concurrent requests
+)
+```
+
+### REST API
+
+Start the Flask API server:
+
+```python
+atelier = AtelierGenerator(mode="api")
+# OR
+atelier = AtelierGenerator()
+atelier.start_api(
+    host="0.0.0.0", # Server host
+    port=5733, # Server port
+    debug=False # Enable debug mode
+)
+```
+
+#### API Endpoints
+
+Image Generation:
+- `POST /v1/api/image/generate` - Generate images from text
+- `POST /v1/api/image/variation` - Create image variations
+- `POST /v1/api/image/structure` - Apply structural guidance
+- `POST /v1/api/image/facial` - Apply facial guidance
+- `POST /v1/api/image/style` - Apply style transfer
+- `POST /v1/api/image/controlnet` - Apply ControlNet
+
+Image Editing:
+- `POST /v1/api/image/enhance` - Enhance image quality
+- `POST /v1/api/image/inpaint` - Fill masked areas
+- `POST /v1/api/image/erase` - Remove objects
+- `POST /v1/api/image/upscale` - Upscale image
+- `POST /v1/api/image/bgremove` - Remove background
+- `POST /v1/api/image/outpaint` - Extend image borders
+
+Face Enhancement:
+- `POST /v1/api/face/gfpgan` - GFPGAN face restoration
+- `POST /v1/api/face/codeformer` - CodeFormer face restoration
+
+Real-time Features:
+- `POST /v1/api/realtime/generate` - Real-time generation
+- `POST /v1/api/realtime/canvas` - Interactive canvas
+
+Image Analysis:
+- `POST /v1/api/image/caption` - Generate image caption
+- `POST /v1/api/image/prompt` - Convert image to prompt
+
+## Configuration
 
 ### Output Formats
-
-- `webp` (default) - High quality, small file size
+- `webp` (default) - High quality, small size
 - `png` - Lossless quality
-- `jpg` - Standard compressed format
-- `pil` - Returns PIL Image object
+- `jpg` - Standard compressed
+- `pil` - PIL Image object
 
-### Available Lists
-
-We provide several class methods to retrieve available options for different features. Here's how to access them:
-
+### Available Models & Presets
 ```python
-from atelier_client import AtelierClient
-client = AtelierClient()
-
-# Models and Sizes
-models = client.list_atr_models                 # Base image generation models
-sizes = client.list_atr_size                    # Available image size ratios
-
-# Style Options
-styles = client.list_sty_styles                 # Style presets
-guidance_models = client.list_atr_models_guide  # Guidance-specific models
-guidance_types = client.list_atr_g_types        # Types of guidance available
-
-# LoRA Models
+# Get available options
+models = atelier.list_atr_models # Base models
+sizes = atelier.list_atr_size # Image sizes
+styles = atelier.list_sty_styles # Style presets
 lora_models = {
-    'svi': client.list_atr_lora_svi,            # SVI-compatible LoRA models
-    'flux': client.list_atr_lora_flux,            # Flux-compatible LoRA models
-    'rt': client.list_atr_lora_rt               # Realtime-compatible LoRA models
+    'svi': atelier.list_atr_lora_svi, # SVI LoRA models
+    'flux': atelier.list_atr_lora_flux, # Flux LoRA models
+    'rt': atelier.list_atr_lora_rt # RT LoRA models
 }
-
-# Other Models
-controlnets = client.list_atr_controlnets       # Available ControlNet models
-gfpgan_models = client.list_atr_gfpgan          # GFPGAN face restoration models
-remix_models = client.list_atr_remix_model      # Remix-compatible models
-
-# Example usage:
-print(f"Available image models: {models}")
-print(f"Available image sizes: {sizes}")
-print(f"Available style presets: {styles}")
 ```
-
-These lists can be used to validate inputs and explore available options for different generation methods. All methods return lists of strings representing the valid options for each category.
-
-## Error Handling
-
-The client includes comprehensive error handling and logging:
-- Network connectivity checks
-- Input validation
-- NSFW content detection
-- Request timeout handling
-- Detailed logging (when enabled)
-
-## Requirements
-
-- Python 3.8+
-- Internet connection
 
 ## License
 
