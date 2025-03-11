@@ -11,7 +11,7 @@ from PIL import Image
 from io import BytesIO
 from datetime import datetime
 from importlib import resources
-from colorpaws import configure
+from colorpaws import ColorPaws
 
 class AtelierGenerator:
     """Copyright (C) 2025 Ikmal Said. All rights reserved."""
@@ -29,7 +29,7 @@ class AtelierGenerator:
         - save_to (str): Directory to save outputs.
         - save_as (str): Output format ('png', 'webp', 'jpg', 'pil').
         """        
-        self.logger = configure(
+        self.logger = ColorPaws(
             name=self.__class__.__name__,
             log_on=log_on,
             log_to=log_to
