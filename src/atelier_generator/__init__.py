@@ -74,7 +74,7 @@ class AtelierGenerator:
         """
         try:
             if mode == "webui":
-                self.start_wui()
+                self.start_webui()
             
             elif mode == "api":
                 self.start_api()
@@ -127,7 +127,6 @@ class AtelierGenerator:
             self.__atr_g_structure  = __atr_preset["guide_range"]["structure"]
             self.__atr_g_facial     = __atr_preset["guide_range"]["facial"]
             self.__atr_g_style      = __atr_preset["guide_range"]["style"]
-            self.__atr_g_types      = __atr_preset["guide_types"]
             self.__atr_controlnets  = __atr_preset["controlnets"]
             self.__atr_models_sdxl  = __atr_preset["models_sdxl"]
             self.__atr_models_flux  = __atr_preset["models_flux"]
@@ -178,7 +177,6 @@ class AtelierGenerator:
             self.list_atr_models_sdxl  = list(self.__atr_models_sdxl.keys())
             self.list_atr_models_flux  = list(self.__atr_models_flux.keys())
             self.list_atr_models_svi   = list(self.__atr_models_svi.keys())
-            self.list_atr_g_types      = list(self.__atr_g_types.keys())
             self.list_atr_g_variation  = list(self.__atr_g_variation.keys())
             self.list_atr_g_structure  = list(self.__atr_g_structure.keys())
             self.list_atr_g_facial     = list(self.__atr_g_facial.keys())
@@ -720,12 +718,15 @@ class AtelierGenerator:
             
             body = {
                 "image": ("guide.png", guide_array, "image/png"),
+                "enable_layer_diffusion": (None, "false"),
+                "enable_adetailer": (None, "false"),
                 "negative_prompt": (None, negative_prompt),
-                "denoising_strength": (None, strength),
                 "aspect_ratio": (None, image_size),
                 "style_id": (None, model_name),
                 "variation": (None, "img2img"),
+                "strength": (None, strength),
                 "enable_hr": (None, "true"),
+                "is_enhance": (None, "0"),
                 "prompt": (None, prompt),
                 "seed": (None, seed)
             }
@@ -791,14 +792,16 @@ class AtelierGenerator:
             header = self.__xea
             
             body = {
-                "control_1_image": ("guide.png", guide_array, "image/png"),
+                "image": ("guide.png", guide_array, "image/png"),
                 "negative_prompt": (None, negative_prompt),
-                "control_1_weight": (None, strength),
+                "enable_layer_diffusion": (None, "false"),
+                "enable_adetailer": (None, "false"),
+                "control_weight": (None, strength),
                 "aspect_ratio": (None, image_size),
-                "control_1_type": (None, 'hed'),
-                "variation": (None, "txt2img"),
+                "variation": (None, "restructure"),
                 "style_id": (None, model_name),
                 "enable_hr": (None, "true"),
+                "is_enhance": (None, "0"),
                 "prompt": (None, prompt),
                 "seed": (None, seed)
             }
@@ -856,13 +859,16 @@ class AtelierGenerator:
             header = self.__xea
             
             body = {
-                "face": ("guide.png", guide_array, "image/png"),
+                "image": ("guide.png", guide_array, "image/png"),
                 "negative_prompt": (None, negative_prompt),
+                "enable_layer_diffusion": (None, "false"),
+                "enable_adetailer": (None, "false"),
+                "control_weight": (None, strength),
                 "aspect_ratio": (None, image_size),
-                "face_strength": (None, strength),
+                "variation": (None, "face-portrait"),
                 "style_id": (None, model_name),
-                "variation": (None, "txt2img"),
                 "enable_hr": (None, "true"),
+                "is_enhance": (None, "0"),
                 "prompt": (None, prompt),
                 "seed": (None, seed)
             }
@@ -920,13 +926,16 @@ class AtelierGenerator:
             header = self.__xea
             
             body = {
-                "style_image": ("guide.png", guide_array, "image/png"),
+                "image": ("guide.png", guide_array, "image/png"),
                 "negative_prompt": (None, negative_prompt),
-                "style_strength": (None, strength),
+                "enable_layer_diffusion": (None, "false"),
+                "enable_adetailer": (None, "false"),
+                "control_weight": (None, strength),
                 "aspect_ratio": (None, image_size),
+                "variation": (None, "restyle"),
                 "style_id": (None, model_name),
-                "variation": (None, "txt2img"),
                 "enable_hr": (None, "true"),
+                "is_enhance": (None, "0"),
                 "prompt": (None, prompt),
                 "seed": (None, seed)
             }
@@ -1448,46 +1457,43 @@ class AtelierGenerator:
             self.logger.error(f"[{task_id}] Error in image_prompt: {str(e)}")
             raise
 
-    def start_api(self, host: str = "0.0.0.0", port: int = 5733, debug: bool = False):
+    def start_api(self, host: str = '0.0.0.0', port: int = None, debug: bool = False):
         """
         Start the API server with all endpoints.
 
         Parameters:
-        - host (str): Host to run the server on (default: "0.0.0.0")
-        - port (int): Port to run the server on (default: 5733)
+        - host (str): Host to run the server on (default: '0.0.0.0')
+        - port (int): Port to run the server on (default: None)
         - debug (bool): Enable Flask debug mode (default: False)
         """
         try:
             from .api import AtelierWebAPI
-            
             self.save_as = 'pil'
-            
             AtelierWebAPI(self, host=host, port=port, debug=debug)
         
         except Exception as e:
             self.logger.error(f"WebAPI error: {str(e)}")
             raise
         
-    def start_wui(self, host: str = "0.0.0.0", port: int = 5735, browser: bool = True,
-                  upload_size: str = "4MB", public: bool = False, limit: int = 10):
+    def start_webui(self, host: str = None, port: int = None, browser: bool = False, upload_size: str = "4MB",
+                    public: bool = False, limit: int = 10, quiet: bool = False):
         """
         Start Atelier WebUI with all features.
         
         Parameters:
-        - host (str): Server host (default: "0.0.0.0")
-        - port (int): Server port (default: 5735) 
-        - browser (bool): Launch browser automatically (default: True)
+        - host (str): Server host (default: None)
+        - port (int): Server port (default: None) 
+        - browser (bool): Launch browser automatically (default: False)
         - upload_size (str): Maximum file size for uploads (default: "4MB")
         - public (bool): Enable public URL mode (default: False)
         - limit (int): Maximum number of concurrent requests (default: 10)
+        - quiet (bool): Enable quiet mode (default: False)
         """
         try:
             from .webui import AtelierWebUI
-            
             self.gradio = True
-            
-            AtelierWebUI(self, host=host, port=port, browser=browser,
-                        upload_size=upload_size, public=public, limit=limit)
+            AtelierWebUI(self, host=host, port=port, browser=browser, upload_size=upload_size,
+                         public=public, limit=limit, quiet=quiet)
         
         except Exception as e:
             self.logger.error(f"WebUI error: {str(e)}")

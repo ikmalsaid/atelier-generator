@@ -27,6 +27,7 @@
         "sdxl-turbo-2": "404"
     },
     "models_flux": {
+        "imagen-3": "14000",
         "flux-turbo": "309",
         "flux-hd": "310",
         "flux-text": "311",
@@ -51,12 +52,6 @@
         "9:16": "9:16",
         "12:5": "12:5",
         "5:12": "5:12"
-    },
-    "guide_types": {
-        "variation": "variation",
-        "structure": "structure",
-        "facial": "facial",
-        "style": "style"
     },
     "guide_range": {
         "variation": {
@@ -119,12 +114,12 @@
         "cyberpunk-anime": "0161",
         "illustration-style": "0203",
         "japanese-poster": "0204",
-        "midjourney-style": "0207",
+        "dreamscape": "0207",
         "vector-art": "0166",
         "neon-cyberpunk": "0163",
         "pixel-art": "0164",
         "realism": "0170",
-        "rubber-hose": "0160",
+        "rubberhose": "0160",
         "vintage-comic": "0162",
         "instagram": "0209",
         "surreal-tones": "0196",
@@ -140,11 +135,24 @@
         "frostinglane": "0227",
         "niji-anime": "0235",
         "mystic-sumi": "0233",
-        "soft-anime": "0228",
+        "softserve-anime": "0228",
         "mooniverse": "0230",
         "film-portraits": "0236",
         "boreal-raw": "0223",
-        "daubrez-painterly": "0241"
+        "daubrez-painterly": "0241",
+        "sony-alpha": "0243",
+        "anime-2.0": "0244",
+        "yarn": "0245",
+        "riccardo-guasco": "0246",
+        "delicate-whimsy": "0247",
+        "star-dust-touch": "0251",
+        "low-key-lighting": "0252",
+        "oilpaintz": "0253",
+        "retro-ghibli": "0256",
+        "flat-cartoon": "0257",
+        "dark-whimsical": "0258",
+        "hand-drawn": "0260",
+        "painterly-fantasia": "0261"
     },
     "lora_rt": {
         "none": "picture",

@@ -201,6 +201,66 @@
             height: 1.25rem;
             stroke: currentColor;
         }
+
+                
+        .download-button {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: var(--secondary);
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+            border: none;
+        }
+
+        .grid-item:hover .download-button {
+            opacity: 1;
+        }
+
+        .download-button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke: var(--foreground);
+        }
+
+        .grid-item.loading .download-button,
+        .grid-item:not(:has(img[src])) .download-button {
+            display: none;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            place-content: center;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background-color: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            color: var(--muted-foreground);
+            cursor: pointer;
+            transition: all 150ms;
+        }
+
+        .tab.active {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -229,18 +289,38 @@
                     <div class="grid-item" id="image0">
                         <div class="loader"></div>
                         <img>
+                        <button class="download-button" onclick="downloadImage(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                        </button>
                     </div>
                     <div class="grid-item" id="image1">
                         <div class="loader"></div>
                         <img>
+                        <button class="download-button" onclick="downloadImage(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                        </button>
                     </div>
                     <div class="grid-item" id="image2">
                         <div class="loader"></div>
                         <img>
+                        <button class="download-button" onclick="downloadImage(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                        </button>
                     </div>
                     <div class="grid-item" id="image3">
                         <div class="loader"></div>
                         <img>
+                        <button class="download-button" onclick="downloadImage(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -253,7 +333,14 @@
         <!-- API Documentation -->
         <div class="card">
             <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">API Documentation</h2>
-            <div class="table-container">
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('inference')">Inference Endpoints</button>
+                <button class="tab" onclick="switchTab('data')">Data Endpoints</button>
+            </div>
+        
+            <div id="inference-tab" class="tab-content active">
+                <div class="table-container">
                 <table>
                     <tr>
                         <th>POST Endpoints</th>
@@ -500,9 +587,189 @@
                 </table>
             </div>
         </div>
+        <div id="data-tab" class="tab-content">
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <th>GET Endpoints</th>
+                        <th>Description</th>
+                        <th>Response</th>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/models</td>
+                        <td>List all available models</td>
+                        <td>
+                            <ul>
+                                <li><code>models</code>: List of model names</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/models/guide</td>
+                        <td>List guidance models</td>
+                        <td>
+                            <ul>
+                                <li><code>models</code>: List of guidance model names</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/models/flux</td>
+                        <td>List Flux models</td>
+                        <td>
+                            <ul>
+                                <li><code>models</code>: List of Flux model names</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/models/svi</td>
+                        <td>List SVI models</td>
+                        <td>
+                            <ul>
+                                <li><code>models</code>: List of SVI model names</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/models/sdxl</td>
+                        <td>List SDXL models</td>
+                        <td>
+                            <ul>
+                                <li><code>models</code>: List of SDXL model names</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/lora/flux</td>
+                        <td>List Flux LoRA presets</td>
+                        <td>
+                            <ul>
+                                <li><code>models</code>: List of Flux LoRA presets</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/lora/svi</td>
+                        <td>List SVI LoRA presets</td>
+                        <td>
+                            <ul>
+                                <li><code>models</code>: List of SVI LoRA presets</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/lora/rt</td>
+                        <td>List RT LoRA presets</td>
+                        <td>
+                            <ul>
+                                <li><code>models</code>: List of RT LoRA presets</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/styles</td>
+                        <td>List style presets</td>
+                        <td>
+                            <ul>
+                                <li><code>styles</code>: List of style presets</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/controlnets</td>
+                        <td>List ControlNet types</td>
+                        <td>
+                            <ul>
+                                <li><code>controlnets</code>: List of ControlNet types</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/gfpgan</td>
+                        <td>List GFPGAN versions</td>
+                        <td>
+                            <ul>
+                                <li><code>gfpgan</code>: List of GFPGAN versions</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/models/remix</td>
+                        <td>List Remix models</td>
+                        <td>
+                            <ul>
+                                <li><code>remix</code>: List of Remix model names</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/size</td>
+                        <td>List available size ratios</td>
+                        <td>
+                            <ul>
+                                <li><code>size</code>: List of size ratios</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/guide/variation</td>
+                        <td>List variation strength ranges</td>
+                        <td>
+                            <ul>
+                                <li><code>variation</code>: Variation strength range</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/guide/structure</td>
+                        <td>List structure guidance ranges</td>
+                        <td>
+                            <ul>
+                                <li><code>structure</code>: Structure guidance range</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/guide/facial</td>
+                        <td>List facial guidance ranges</td>
+                        <td>
+                            <ul>
+                                <li><code>facial</code>: Facial guidance range</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/get/guide/style</td>
+                        <td>List style guidance ranges</td>
+                        <td>
+                            <ul>
+                                <li><code>style</code>: Style guidance range</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(tabName)) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
         function openTestDialog() {
             document.getElementById('testDialog').style.display = 'block';
             updateCurlExample();
@@ -517,6 +784,18 @@
                 container.querySelector('img').style.display = 'none';
                 container.querySelector('img').src = '';
             }
+        }
+        
+        function downloadImage(button) {
+                const img = button.parentElement.querySelector('img');
+                if (!img.src) return;
+
+                const link = document.createElement('a');
+                link.href = img.src;
+                link.download = `generated-image-${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
         }
 
         async function generateImages() {

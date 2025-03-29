@@ -178,12 +178,13 @@ atelier = AtelierGenerator(mode="webui")
 # OR
 atelier = AtelierGenerator()
 atelier.start_wui(
-    host="0.0.0.0", # Server host
-    port=5735, # Server port
+    host="localhost", # Server host
+    port=7860, # Server port
     browser=True, # Launch browser
     upload_size="4MB", # Max upload size
     public=False, # Enable public URL
-    limit=10 # Max concurrent requests
+    limit=10, # Max concurrent requests
+    quiet=False # Quiet mode
 )
 ```
 
@@ -197,7 +198,7 @@ atelier = AtelierGenerator(mode="api")
 atelier = AtelierGenerator()
 atelier.start_api(
     host="0.0.0.0", # Server host
-    port=5733, # Server port
+    port=5000, # Server port
     debug=False # Enable debug mode
 )
 ```
@@ -232,6 +233,25 @@ Image Analysis:
 - `POST /v1/api/image/caption` - Generate image caption
 - `POST /v1/api/image/prompt` - Convert image to prompt
 
+Data Endpoints:
+- `GET /v1/api/get/models` - List all available models
+- `GET /v1/api/get/models/guide` - List guidance models
+- `GET /v1/api/get/models/flux` - List Flux models
+- `GET /v1/api/get/models/svi` - List SVI models
+- `GET /v1/api/get/models/sdxl` - List SDXL models
+- `GET /v1/api/get/models/remix` - List Remix models
+- `GET /v1/api/get/lora/flux` - List Flux LoRA presets
+- `GET /v1/api/get/lora/svi` - List SVI LoRA presets
+- `GET /v1/api/get/lora/rt` - List RT LoRA presets
+- `GET /v1/api/get/styles` - List style presets
+- `GET /v1/api/get/controlnets` - List ControlNet types
+- `GET /v1/api/get/gfpgan` - List GFPGAN versions
+- `GET /v1/api/get/size` - List available image sizes
+- `GET /v1/api/get/guide/variation` - List variation strength presets
+- `GET /v1/api/get/guide/structure` - List structure guidance presets
+- `GET /v1/api/get/guide/facial` - List facial guidance presets
+- `GET /v1/api/get/guide/style` - List style guidance presets
+
 ## Configuration
 
 ### Output Formats
@@ -243,14 +263,12 @@ Image Analysis:
 ### Available Models & Presets
 ```python
 # Get available options
-models = atelier.list_atr_models # Base models
+models = atelier.list_atr_models # All models
 sizes = atelier.list_atr_size # Image sizes
 styles = atelier.list_sty_styles # Style presets
-lora_models = {
-    'svi': atelier.list_atr_lora_svi, # SVI LoRA models
-    'flux': atelier.list_atr_lora_flux, # Flux LoRA models
-    'rt': atelier.list_atr_lora_rt # RT LoRA models
-}
+svi_lora = atelier.list_atr_lora_svi # SVI LoRA models
+flux_lora = atelier.list_atr_lora_flux # Flux LoRA models
+rt_lora = atelier.list_atr_lora_rt # RT LoRA models
 ```
 
 ## License

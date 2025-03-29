@@ -2,8 +2,8 @@ import gradio as gr
 from datetime import datetime
 from gradio_modal import Modal
 
-def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = True,
-                 upload_size: str = "4MB", public: bool = False, limit: int = 10):
+def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = False, upload_size: str = "4MB",
+                 public: bool = False, limit: int = 10, quiet: bool = False):
     """ 
     Start Atelier Generator Web UI with all features.
     
@@ -24,7 +24,6 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Tru
         atr_models       = client.list_atr_models
         atr_models_guide = client.list_atr_models_guide
         atr_models_svi   = client.list_atr_models_svi
-        atr_guides       = client.list_atr_g_types
         atr_lora_svi     = client.list_atr_lora_svi
         atr_lora_flux    = client.list_atr_lora_flux
         atr_size         = client.list_atr_size
@@ -854,7 +853,7 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Tru
             inbrowser=browser,
             max_file_size=upload_size,
             share=public,
-            quiet=True
+            quiet=quiet
         )
         
     except Exception as e:

@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from io import BytesIO
 import base64
 
-def AtelierWebAPI(client, host: str = "0.0.0.0", port: int = 5733, debug: bool = False):
+def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = False):
     """
     Start Atelier Generator API server with all endpoints.
     
@@ -30,11 +30,224 @@ def AtelierWebAPI(client, host: str = "0.0.0.0", port: int = 5733, debug: bool =
                 client.logger.error(f"Error in data_url_processor: {e}")
                 return None
 
+        # Index Endpoint
         @app.route('/', methods=['GET'])
         def api_index():
             """Render the API documentation page"""
-            return render_template('index.py')
+            try:
+                return render_template('index.py')
+            
+            except Exception as e:
+                client.logger.error(f"Error in api_index: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
 
+        # Data Endpoints
+        @app.route('/v1/api/get/models', methods=['GET'])
+        def list_models_api():
+            """
+            Handle model list requests.
+            """
+            try:
+                return jsonify({"success": True, "models": client.list_atr_models})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_models_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/models/guide', methods=['GET'])
+        def list_models_guide_api():
+            """
+            Handle guidance model list requests.
+            """
+            try:
+                return jsonify({"success": True, "models": client.list_atr_models_guide})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_models_guide_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+
+        @app.route('/v1/api/get/models/flux', methods=['GET'])
+        def list_models_flux_api():
+            """
+            Handle Flux model list requests.
+            """
+            try:
+                return jsonify({"success": True, "models": client.list_atr_models_flux})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_models_flux_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+
+        @app.route('/v1/api/get/models/svi', methods=['GET'])
+        def list_models_svi_api():
+            """
+            Handle SVI model list requests.
+            """
+            try:
+                return jsonify({"success": True, "models": client.list_atr_models_svi})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_models_svi_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+
+        @app.route('/v1/api/get/models/sdxl', methods=['GET'])
+        def list_models_sdxl_api():
+            """
+            Handle SDXL model list requests.
+            """
+            try:
+                return jsonify({"success": True, "models": client.list_atr_models_sdxl})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_models_sdxl_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/lora/flux', methods=['GET'])
+        def list_lora_flux_api():
+            """
+            Handle Flux LoRA list requests.
+            """
+            try:
+                return jsonify({"success": True, "models": client.list_atr_lora_flux})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_lora_flux_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/lora/svi', methods=['GET'])
+        def list_lora_svi_api():
+            """
+            Handle SVI LoRA list requests.
+            """
+            try:
+                return jsonify({"success": True, "models": client.list_atr_lora_svi})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_lora_svi_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/lora/rt', methods=['GET'])
+        def list_lora_rt_api():
+            """
+            Handle RT LoRA list requests.
+            """
+            try:
+                return jsonify({"success": True, "models": client.list_atr_lora_rt})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_lora_rt_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/styles', methods=['GET'])
+        def list_styles_api():
+            """
+            Handle style list requests.
+            """
+            try:
+                return jsonify({"success": True, "styles": client.list_atr_styles})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_styles_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/controlnets', methods=['GET'])
+        def list_controlnets_api():
+            """
+            Handle controlnet list requests.
+            """
+            try:
+                return jsonify({"success": True, "controlnets": client.list_atr_controlnets})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_controlnets_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/gfpgan', methods=['GET'])
+        def list_gfpgan_api():
+            """
+            Handle GFPGAN list requests.
+            """
+            try:
+                return jsonify({"success": True, "gfpgan": client.list_atr_gfpgan})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_gfpgan_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/models/remix', methods=['GET'])
+        def list_remix_model_api():
+            """
+            Handle Remix model list requests.
+            """
+            try:
+                return jsonify({"success": True, "remix": client.list_atr_remix_model})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_remix_model_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+
+        @app.route('/v1/api/get/size', methods=['GET'])
+        def list_size_api():
+            """
+            Handle size list requests.
+            """
+            try:
+                return jsonify({"success": True, "size": client.list_atr_size})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_size_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+
+        # guide range
+        @app.route('/v1/api/get/guide/variation', methods=['GET'])
+        def list_guide_variation_api():
+            """
+            Handle guide variation range list requests.
+            """
+            try:
+                return jsonify({"success": True, "variation": client.list_atr_g_variation})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_guide_variation_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/guide/structure', methods=['GET']) 
+        def list_guide_structure_api():
+            """
+            Handle guide structure range list requests.
+            """
+            try:
+                return jsonify({"success": True, "structure": client.list_atr_g_structure})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_guide_structure_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/guide/facial', methods=['GET'])
+        def list_guide_facial_api():
+            """
+            Handle guide facial range list requests.
+            """
+            try:
+                return jsonify({"success": True, "facial": client.list_atr_g_facial})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_guide_facial_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+        
+        @app.route('/v1/api/get/guide/style', methods=['GET'])
+        def list_guide_style_api():
+            """
+            Handle guide style range list requests.
+            """
+            try:
+                return jsonify({"success": True, "style": client.list_atr_g_style})
+            
+            except Exception as e:
+                client.logger.error(f"Error in list_guide_style_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+
+        # Inference Endpoints
         @app.route('/v1/api/image/generate', methods=['POST'])
         def image_generate_api():
             """
@@ -766,7 +979,6 @@ def AtelierWebAPI(client, host: str = "0.0.0.0", port: int = 5733, debug: bool =
                 client.logger.error(f"Error in image_prompt_api: {e}")
                 return jsonify({"success": False, "error": str(e)}), 400
 
-        client.logger.info(f"Starting API server on {host}:{port}")
         app.run(host=host, port=port, debug=debug)
     
     except Exception as e:
