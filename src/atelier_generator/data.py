@@ -16,7 +16,8 @@
         "alterimage": "generations/guided",
         "caption": "info/caption",
         "faces": "info/faces",
-        "codeformer": "codeformer"
+        "codeformer": "codeformer",
+        "transparent": "generations/transparent"
     },
     "models_sdxl": {
         "sdxl-illustration": "403",
@@ -1955,6 +1956,6 @@
     ],
     "locale": [
         "VzRreXBKbXdzRzdIbFh5NDhuT2NwTjJhOXZJT0s1R21yVHZ3QWRlalBDUmp0NzM5TEdjRGdkVjF6S2hIbmlSSmFpWE1wb3NwOVF2SWd2UmxLbVhmZVptM1hNTEFrYzhqVXdsOVdTU2lNdzQ2QlE5ZkhVY1BJemlvaVlMZnBabUM1TUlUMG1tM3dQSzlwb1JhQTBCQjNmOXJwTGkyaTJMRkl6Mm92OHpudVg1clJVUkdVb3BFUjdreWNlelNMNm4zUDVuWFhCMU1acDlIa1hJa1VDbkJFSWNPR3ZhSUJmaEdMTEFRWGZNWGE1SHNPQmV1ak4xZzI3TWd5UTRPdHQ4aA==",
-        "aHR0cHM6Ly9hcGkudnlyby5haS92MS9pbWFnaW5lL2lvcy8=", "aHR0cHM6Ly9pbmZlcmVuY2VlbmdpbmUudnlyby5haS8=", "aHR0cHM6Ly9hcmMudGVuY2VudC5jb20vZmFjZV9yZXN0b3JhdGlvbi8="
+        "aHR0cHM6Ly9pbWFnaW5lLnZ5cm8uYWkvdjEvaW9zLw==", "aHR0cHM6Ly9pbmZlcmVuY2VlbmdpbmUudnlyby5haS8=", "aHR0cHM6Ly9hcmMudGVuY2VudC5jb20vZmFjZV9yZXN0b3JhdGlvbi8="
     ]
 }

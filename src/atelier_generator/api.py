@@ -262,6 +262,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - lora_flux (str, optional): Name of the LoRA Flux preset (default: "none")
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             """
             try:
                 data = {
@@ -272,7 +273,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'lora_svi': request.form.get('lora_svi', 'none'),
                     'lora_flux': request.form.get('lora_flux', 'none'),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 if not data['prompt']:
@@ -292,6 +294,48 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                 client.logger.error(f"Error in image_generate_api: {e}")
                 return jsonify({"success": False, "error": str(e)}), 400
 
+        @app.route('/v1/api/image/transparent', methods=['POST'])
+        def image_transparent_api():
+            """
+            Handle transparent image generation requests via form data.
+            
+            Form Parameters:
+            - prompt (str, required): User's positive prompt
+            - negative_prompt (str, optional): User's negative prompt
+            - image_size (str, optional): Desired image size ratio (default: "1:1")
+            - image_seed (int, optional): Seed for image generation (default: 0)
+            - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
+            - transparent (bool, optional): Enable transparent image (default: True)
+            """
+            try:
+                data = {
+                    'prompt': request.form.get('prompt'),
+                    'negative_prompt': request.form.get('negative_prompt', ''),
+                    'image_size': request.form.get('image_size', '1:1'),
+                    'image_seed': request.form.get('image_seed', 0),
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true',
+                    'transparent': request.form.get('transparent', 'true').lower() == 'true'
+                }
+
+                if not data['prompt']:
+                    raise Exception("Missing prompt")
+
+                result = client.image_transparent(**data)
+                if not result:
+                    raise Exception("Generation failed")
+
+                data_url = __data_url_processor(result)
+                if not data_url:
+                    raise Exception("Failed to process image")
+
+                return jsonify({"success": True, "result": data_url})
+
+            except Exception as e:
+                client.logger.error(f"Error in image_transparent_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+
         @app.route('/v1/api/image/variation', methods=['POST'])
         def image_variation_api():
             """
@@ -307,6 +351,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - lora_flux (str, optional): Name of the LoRA Flux preset (default: "none")
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -325,7 +370,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'lora_svi': request.form.get('lora_svi', 'none'),
                     'lora_flux': request.form.get('lora_flux', 'none'),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 if not data['prompt']:
@@ -359,6 +405,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - lora_svi (str, optional): Name of the LoRA SVI preset (default: "none")
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -376,7 +423,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'strength': request.form.get('strength', 'medium'),
                     'lora_svi': request.form.get('lora_svi', 'none'),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 if not data['prompt']:
@@ -410,6 +458,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - lora_svi (str, optional): Name of the LoRA SVI preset (default: "none")
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -427,7 +476,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'strength': request.form.get('strength', 'medium'),
                     'lora_svi': request.form.get('lora_svi', 'none'),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 if not data['prompt']:
@@ -461,6 +511,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - lora_svi (str, optional): Name of the LoRA SVI preset (default: "none")
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -478,7 +529,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'strength': request.form.get('strength', 'medium'),
                     'lora_svi': request.form.get('lora_svi', 'none'),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 if not data['prompt']:
@@ -544,6 +596,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - strength (float, optional): Strength of creativity application (default: 0.9)
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -559,7 +612,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'lora_rt': request.form.get('lora_rt', 'none'),
                     'strength': float(request.form.get('strength', 0.9)),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 if not data['prompt']:
@@ -591,6 +645,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - lora_rt (str, optional): Name of the LoRA RT preset (default: "none")
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             """
             try:
                 data = {
@@ -599,7 +654,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'image_size': request.form.get('image_size', '1:1'),
                     'lora_rt': request.form.get('lora_rt', 'none'),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 if not data['prompt']:
@@ -630,6 +686,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - strength (float, optional): Strength of inpainting (default: 0.5)
             - cfg (float, optional): Scale of the prompt (default: 9.0)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -649,7 +706,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'negative_prompt': request.form.get('negative_prompt', ''),
                     'strength': request.form.get('strength', 0.5),
                     'cfg': request.form.get('cfg', 9.0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 if not data['prompt']:
@@ -720,6 +778,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - resemblance (float, optional): Strength of resemblance application (default: 0.8)
             - hdr (float, optional): Strength of HDR application (default: 0.5)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -735,7 +794,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'creativity': request.form.get('creativity', 0.3),
                     'resemblance': request.form.get('resemblance', 1),
                     'hdr': request.form.get('hdr', 0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 result = client.image_enhance(**data)
@@ -766,6 +826,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - cfg (float, optional): Scale of the prompt (default: 9.0)
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
+            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -783,7 +844,8 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'strength': request.form.get('strength', 70),
                     'cfg': request.form.get('cfg', 9.0),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none')
+                    'style_name': request.form.get('style_name', 'none'),
+                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
                 }
 
                 if not data['prompt']:

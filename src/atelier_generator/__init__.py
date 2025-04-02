@@ -123,6 +123,7 @@ class AtelierGenerator:
             self.__atr_outpaint     = __atr_preset["adr"]["outpaint"]
             self.__atr_caption      = __atr_preset["adr"]["caption"]
             self.__atr_codeformer   = __atr_preset["adr"]["codeformer"]
+            self.__atr_transparent  = __atr_preset["adr"]["transparent"]
             self.__atr_g_variation  = __atr_preset["guide_range"]["variation"]
             self.__atr_g_structure  = __atr_preset["guide_range"]["structure"]
             self.__atr_g_facial     = __atr_preset["guide_range"]["facial"]
@@ -587,6 +588,10 @@ class AtelierGenerator:
                         self.logger.error(f"[{task_id}] Request failed! Status: {response.status_code} ({response.text})")
                         return None
                     
+                    enhanced_prompt = response.headers.get('x-enhanced-prompt')
+                    if enhanced_prompt:
+                        self.logger.info(f"[{task_id}] Enhanced prompt: {enhanced_prompt}")
+                    
                     return handle_streaming_response(response)
                 
                 except requests.exceptions.RequestException as e:
@@ -604,7 +609,7 @@ class AtelierGenerator:
 
     def image_generate(self, prompt: str, negative_prompt: str = "", model_name: str = "flux-turbo",
                        image_size: str = "1:1", lora_svi: str = "none", lora_flux: str = "none",
-                       image_seed: int = 0, style_name: str = "none"):
+                       image_seed: int = 0, style_name: str = "none", enhance_prompt: bool = False):
         """
         High quality image generation.
 
@@ -617,6 +622,7 @@ class AtelierGenerator:
         - lora_flux (str): Name of the LoRA Flux preset.
         - image_seed (int): Seed for image generation.
         - style_name (str): Name of the style preset.
+        - enhance_prompt (bool): Enable enhance prompt.
         """
         try:
             task_id = self.__get_task_id()
@@ -639,7 +645,10 @@ class AtelierGenerator:
             header = self.__xea
             
             body = {
+                "is_enhance": (None, "1" if enhance_prompt else "0"),
                 "negative_prompt": (None, negative_prompt),
+                "enable_layer_diffusion": (None, "false"),
+                "enable_adetailer": (None, "false"),
                 "aspect_ratio": (None, image_size),
                 "style_id": (None, model_name),
                 "variation": (None, "txt2img"),
@@ -662,9 +671,56 @@ class AtelierGenerator:
             self.logger.error(f"[{task_id}] Error in image_generate: {e}")
             raise
 
+    def image_transparent(self, prompt: str, negative_prompt: str = "", image_size: str = "1:1", image_seed: int = 0, 
+                          style_name: str = "none", enhance_prompt: bool = False, transparent: bool = True):
+        """
+        Generate transparent images.
+
+        Parameters:
+        - prompt (str): User's positive prompt.
+        - negative_prompt (str): User's negative prompt.
+        - image_size (str): Desired image size ratio.
+        - image_seed (int): Seed for image generation.
+        - style_name (str): Name of the style preset.
+        - enhance_prompt (bool): Enable enhance prompt.
+        - transparent (bool): Enable transparent image.
+        """
+        try:
+            task_id = self.__get_task_id()
+            
+            prompt, _ = self.__prompt_processor(prompt, "", style_name, task_id = task_id)
+            
+            seed = self.__random_seed_generator(image_seed, task_id)
+            
+            image_size = self.__atr_size.get(image_size)
+            if not image_size:
+                raise ValueError(f"Invalid image size!")
+            
+            url = self.__ime + self.__atr_transparent
+            header = self.__xea
+            
+            body = {
+                "enable_layer_diffusion": (None, "true" if transparent else "false"),
+                "is_enhance": (None, "1" if enhance_prompt else "0"),
+                "negative_prompt": (None, negative_prompt),
+                "enable_adetailer": (None, "true"),
+                "aspect_ratio": (None, image_size),
+                "variation": (None, "txt2img"),
+                "enable_hr": (None, "true"),
+                "prompt": (None, prompt),
+                "style_id": (None, "1"),
+                "seed": (None, seed)
+            }
+            
+            return self.__service_request(url, header, body, task_id = task_id)
+
+        except Exception as e:
+            self.logger.error(f"[{task_id}] Error in image_transparent: {str(e)}")
+            raise
+
     def image_variation(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "flux-turbo",
-                        image_size: str = "1:1", strength: str = "high", lora_svi: str = "none", 
-                        lora_flux: str = "none", image_seed: int = 0, style_name: str = "none"):
+                        image_size: str = "1:1", strength: str = "high", lora_svi: str = "none", lora_flux: str = "none",
+                        image_seed: int = 0, style_name: str = "none", enhance_prompt: bool = False):
         """
         Generate variations of an input image.
         
@@ -679,6 +735,7 @@ class AtelierGenerator:
         - lora_flux (str): Name of the LoRA Flux preset.
         - image_seed (int): Seed for image generation.
         - style_name (str): Name of the style preset.
+        - enhance_prompt (bool): Enable enhance prompt.
         """
         try:
             task_id = self.__get_task_id()
@@ -717,6 +774,7 @@ class AtelierGenerator:
             header = self.__xea
             
             body = {
+                "is_enhance": (None, "1" if enhance_prompt else "0"),
                 "image": ("guide.png", guide_array, "image/png"),
                 "enable_layer_diffusion": (None, "false"),
                 "enable_adetailer": (None, "false"),
@@ -726,7 +784,6 @@ class AtelierGenerator:
                 "variation": (None, "img2img"),
                 "strength": (None, strength),
                 "enable_hr": (None, "true"),
-                "is_enhance": (None, "0"),
                 "prompt": (None, prompt),
                 "seed": (None, seed)
             }
@@ -746,8 +803,8 @@ class AtelierGenerator:
             raise
 
     def image_structure(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "svi-realistic",
-                        image_size: str = "1:1", strength: str = "high", lora_svi: str = "none",
-                        image_seed: int = 0, style_name: str = "none"):
+                        image_size: str = "1:1", strength: str = "high", lora_svi: str = "none", image_seed: int = 0,
+                        style_name: str = "none", enhance_prompt: bool = False):
         """
         Generate images using structural guidance.
         
@@ -761,6 +818,7 @@ class AtelierGenerator:
         - lora_svi (str): Name of the LoRA SVI preset.
         - image_seed (int): Seed for image generation.
         - style_name (str): Name of the style preset.
+        - enhance_prompt (bool): Enable enhance prompt.
         """
         try:
             task_id = self.__get_task_id()
@@ -792,6 +850,7 @@ class AtelierGenerator:
             header = self.__xea
             
             body = {
+                "is_enhance": (None, "1" if enhance_prompt else "0"),
                 "image": ("guide.png", guide_array, "image/png"),
                 "negative_prompt": (None, negative_prompt),
                 "enable_layer_diffusion": (None, "false"),
@@ -801,7 +860,6 @@ class AtelierGenerator:
                 "variation": (None, "restructure"),
                 "style_id": (None, model_name),
                 "enable_hr": (None, "true"),
-                "is_enhance": (None, "0"),
                 "prompt": (None, prompt),
                 "seed": (None, seed)
             }
@@ -813,8 +871,8 @@ class AtelierGenerator:
             raise
 
     def image_facial(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "svi-realistic",
-                    image_size: str = "1:1", strength: str = "high", lora_svi: str = "none",
-                    image_seed: int = 0, style_name: str = "none"):
+                    image_size: str = "1:1", strength: str = "high", lora_svi: str = "none", image_seed: int = 0, 
+                    style_name: str = "none", enhance_prompt: bool = False):
         """
         Generate images using facial guidance.
         
@@ -828,6 +886,7 @@ class AtelierGenerator:
         - lora_svi (str): Name of the LoRA SVI preset.
         - image_seed (int): Seed for image generation.
         - style_name (str): Name of the style preset.
+        - enhance_prompt (bool): Enable enhance prompt.
         """
         try:
             task_id = self.__get_task_id()
@@ -859,6 +918,7 @@ class AtelierGenerator:
             header = self.__xea
             
             body = {
+                "is_enhance": (None, "1" if enhance_prompt else "0"),
                 "image": ("guide.png", guide_array, "image/png"),
                 "negative_prompt": (None, negative_prompt),
                 "enable_layer_diffusion": (None, "false"),
@@ -868,7 +928,6 @@ class AtelierGenerator:
                 "variation": (None, "face-portrait"),
                 "style_id": (None, model_name),
                 "enable_hr": (None, "true"),
-                "is_enhance": (None, "0"),
                 "prompt": (None, prompt),
                 "seed": (None, seed)
             }
@@ -880,8 +939,8 @@ class AtelierGenerator:
             raise
 
     def image_style(self, image: str, prompt: str, negative_prompt: str = "", model_name: str = "svi-realistic",
-                    image_size: str = "1:1", strength: str = "high", lora_svi: str = "none",
-                    image_seed: int = 0, style_name: str = "none"):
+                    image_size: str = "1:1", strength: str = "high", lora_svi: str = "none", image_seed: int = 0, 
+                    style_name: str = "none", enhance_prompt: bool = False):
         """
         Generate images using style guidance.
         
@@ -895,6 +954,7 @@ class AtelierGenerator:
         - lora_svi (str): Name of the LoRA SVI preset.
         - image_seed (int): Seed for image generation.
         - style_name (str): Name of the style preset.
+        - enhance_prompt (bool): Enable enhance prompt.
         """
         try:
             task_id = self.__get_task_id()
@@ -935,7 +995,7 @@ class AtelierGenerator:
                 "variation": (None, "restyle"),
                 "style_id": (None, model_name),
                 "enable_hr": (None, "true"),
-                "is_enhance": (None, "0"),
+                "is_enhance": (None, "1" if enhance_prompt else "0"),
                 "prompt": (None, prompt),
                 "seed": (None, seed)
             }

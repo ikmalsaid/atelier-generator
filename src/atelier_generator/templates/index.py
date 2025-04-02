@@ -360,6 +360,22 @@
                                 <li><code>lora_flux</code>: LoRA Flux preset</li>
                                 <li><code>image_seed</code>: Generation seed</li>
                                 <li><code>style_name</code>: Style preset</li>
+                                <li><code>enhance_prompt</code>: Enable prompt enhancement (default: false)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>/v1/api/image/transparent</td>
+                        <td>Generate images with transparent backgrounds</td>
+                        <td>
+                            <ul>
+                                <li><code>prompt</code> (required): Text prompt</li>
+                                <li><code>negative_prompt</code>: Negative prompt</li>
+                                <li><code>image_size</code>: Size ratio (default: "1:1")</li>
+                                <li><code>image_seed</code>: Generation seed</li>
+                                <li><code>style_name</code>: Style preset</li>
+                                <li><code>enhance_prompt</code>: Enable prompt enhancement (default: false)</li>
+                                <li><code>transparent</code>: Enable transparent image (default: true)</li>
                             </ul>
                         </td>
                     </tr>
@@ -378,6 +394,7 @@
                                 <li><code>lora_flux</code>: LoRA Flux preset</li>
                                 <li><code>image_seed</code>: Generation seed</li>
                                 <li><code>style_name</code>: Style preset</li>
+                                <li><code>enhance_prompt</code>: Enable prompt enhancement (default: false)</li>
                             </ul>
                         </td>
                     </tr>
@@ -395,6 +412,7 @@
                                 <li><code>lora_svi</code>: LoRA SVI preset</li>
                                 <li><code>image_seed</code>: Generation seed</li>
                                 <li><code>style_name</code>: Style preset</li>
+                                <li><code>enhance_prompt</code>: Enable prompt enhancement (default: false)</li>
                             </ul>
                         </td>
                     </tr>
@@ -412,6 +430,7 @@
                                 <li><code>lora_svi</code>: LoRA SVI preset</li>
                                 <li><code>image_seed</code>: Generation seed</li>
                                 <li><code>style_name</code>: Style preset</li>
+                                <li><code>enhance_prompt</code>: Enable prompt enhancement (default: false)</li>
                             </ul>
                         </td>
                     </tr>
@@ -429,6 +448,7 @@
                                 <li><code>lora_svi</code>: LoRA SVI preset</li>
                                 <li><code>image_seed</code>: Generation seed</li>
                                 <li><code>style_name</code>: Style preset</li>
+                                <li><code>enhance_prompt</code>: Enable prompt enhancement (default: false)</li>
                             </ul>
                         </td>
                     </tr>
