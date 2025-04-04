@@ -2,6 +2,8 @@
 
 A comprehensive toolkit for state-of-the-art AI image generation compatible with all devices.
 
+![AtelierGenerator](assets/thumb.webp)
+
 ## Installation
 
 ```bash
@@ -16,15 +18,15 @@ pip install atelier-generator
   - Structural & Facial Guidance
   - Style Transfer & ControlNet
 - 🛠️ **Image Editing**
-  - Face Enhancement (GFPGAN/CodeFormer)
+  - Face Enhancement
   - Background Removal
   - Image Upscaling
   - Object Erasing & Inpainting
-- ⚡ **Real-time Features**
+- ⚡ **Advanced Features**
   - RT Image Generation
   - Interactive Canvas
   - Image Outpainting
-  - Image Analysis (Caption/Prompt)
+  - Image Analysis
 
 ## Usage
 
@@ -46,7 +48,7 @@ atelier = AtelierGenerator(
     wm_text="My Watermark" # Custom watermark text
 )
 
-# Basic image generation
+# Image generation
 result = atelier.image_generate(
     prompt="a beautiful landscape",
     negative_prompt="", # Optional negative prompt
@@ -56,6 +58,18 @@ result = atelier.image_generate(
     lora_flux=None, # LoRA Flux preset
     image_seed=0, # Generation seed
     style_name=None # Style preset
+    enhance_prompt=True # Enable prompt enhancer
+)
+
+# Transparent image generation
+result = atelier.image_transparent(
+    prompt="a beautiful sunset",
+    negative_prompt="", # Optional negative prompt
+    image_size="1:1", # Output size ratio
+    image_seed=0, # Generation seed
+    style_name=None, # Style preset
+    enhance_prompt=True, # Enable prompt enhancer
+    transparency=True # Enable transparency
 )
 
 # Image variation
@@ -70,6 +84,7 @@ result = atelier.image_variation(
     lora_flux=None, # LoRA Flux preset
     image_seed=0, # Generation seed
     style_name=None # Style preset
+    enhance_prompt=True # Enable prompt enhancer
 )
 
 # Structural guidance
@@ -83,15 +98,35 @@ result = atelier.image_structure(
     lora_svi=None,  # LoRA SVI preset
     image_seed=0, # Generation seed
     style_name=None # Style preset
+    enhance_prompt=True # Enable prompt enhancer
 )
 
-# Face enhancement
-result = atelier.face_gfpgan(
-    image="face.jpg",
-    model_version="1.3" # Model version (1.2/1.3)
+# Facial guidance
+result = atelier.image_facial(
+    image="face.jpg", # Source image
+    prompt="enhance facial features",
+    negative_prompt="", # Optional negative prompt
+    model_name="svi-realistic", # Model selection
+    image_size="1:1", # Output size ratio
+    strength="high", # Guide strength (low/medium/high)
+    lora_svi=None, # LoRA SVI preset
+    image_seed=0, # Generation seed
+    style_name=None, # Style preset
+    enhance_prompt=True # Enable prompt enhancer
 )
-result = atelier.face_codeformer(
-    image="face.jpg"
+
+# Style guidance
+result = atelier.image_style(
+    image="style.jpg", # Source image
+    prompt="apply a vintage style",
+    negative_prompt="", # Optional negative prompt
+    model_name="svi-realistic", # Model selection
+    image_size="1:1", # Output size ratio
+    strength="high", # Guide strength (low/medium/high)
+    lora_svi=None, # LoRA SVI preset
+    image_seed=0, # Generation seed
+    style_name=None, # Style preset
+    enhance_prompt=True # Enable prompt enhancer
 )
 
 # Image editing
@@ -150,14 +185,6 @@ result = atelier.realtime_canvas(
     style_name=None # Style preset
 )
 
-# Image analysis
-caption = atelier.image_caption(
-    image="photo.jpg"
-)
-prompt = atelier.image_prompt(
-    image="photo.jpg"
-)
-
 # ControlNet features
 result = atelier.image_controlnet(
     image="sketch.jpg",
@@ -169,6 +196,26 @@ result = atelier.image_controlnet(
     cfg=9.0, # Prompt guidance scale
     image_seed=0, # Generation seed
     style_name=None # Style preset
+)
+
+# Face enhancement
+result = atelier.face_gfpgan(
+    image="face.jpg",
+    model_version="1.3" # Model version (1.2/1.3)
+)
+result = atelier.face_codeformer(
+    image="face.jpg"
+)
+
+# Image analysis
+caption = atelier.image_caption(
+    image="photo.jpg"
+)
+prompt = atelier.image_prompt(
+    image="photo.jpg"
+)
+ratio, resolution, path = atelier.size_checker(
+    image="photo.jpg"
 )
 ```
 

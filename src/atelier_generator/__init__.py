@@ -849,7 +849,7 @@ class AtelierGenerator:
             raise
 
     def image_transparent(self, prompt: str, negative_prompt: str = "", image_size: str = "1:1", image_seed: int = 0, 
-                          style_name: str = "none", enhance_prompt: bool = False, transparent: bool = True):
+                          style_name: str = "none", enhance_prompt: bool = False, transparency: bool = True):
         """
         Generate transparent images.
 
@@ -860,7 +860,7 @@ class AtelierGenerator:
         - image_seed (int): Seed for image generation.
         - style_name (str): Name of the style preset.
         - enhance_prompt (bool): Enable enhance prompt.
-        - transparent (bool): Enable transparent image.
+        - transparency (bool): Enable transparency.
         """
         try:
             task_id = self.__get_task_id()
@@ -877,7 +877,7 @@ class AtelierGenerator:
             header = self.__xea
             
             body = {
-                "enable_layer_diffusion": (None, "true" if transparent else "false"),
+                "enable_layer_diffusion": (None, "true" if transparency else "false"),
                 "is_enhance": (None, "1" if enhance_prompt else "0"),
                 "negative_prompt": (None, negative_prompt),
                 "enable_adetailer": (None, "true"),
