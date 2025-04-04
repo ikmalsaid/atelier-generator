@@ -604,6 +604,15 @@
                             </ul>
                         </td>
                     </tr>
+                    <tr>
+                        <td>/v1/api/image/size</td>
+                        <td>Get aspect ratio and resolution of images</td>
+                        <td>
+                            <ul>
+                                <li><code>image</code> (required): Source image</li>
+                            </ul>
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>
@@ -830,6 +839,15 @@
                 const container = document.getElementById(`image${i}`);
                 container.classList.add('loading');
                 container.querySelector('img').style.display = 'none';
+
+                // Clear any existing warning messages
+                const warning = container.querySelector('.warning');
+                if (warning) {
+                    container.removeChild(warning);
+                }
+
+                // Reset background color to original
+                container.style.backgroundColor = 'var(--muted)';
             }
 
             // Send 4 parallel requests

@@ -1,2 +1,2 @@
 from src.atelier_generator import AtelierGenerator
-AtelierGenerator(mode='webui')
+AtelierGenerator(mode='api')

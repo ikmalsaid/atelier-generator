@@ -39,8 +39,11 @@ atelier = AtelierGenerator(
     gradio=False, # Enable Gradio support
     timeout=180, # Request timeout (seconds)
     log_on=True, # Enable logging
+    log_to="logs" # Directory to save logs
     save_to="outputs", # Output directory
     save_as="webp" # Output format (png/webp/jpg/pil)
+    wm_on=True # Enable watermarked images
+    wm_text="My Watermark" # Custom watermark text
 )
 
 # Basic image generation
@@ -232,6 +235,7 @@ Real-time Features:
 Image Analysis:
 - `POST /v1/api/image/caption` - Generate image caption
 - `POST /v1/api/image/prompt` - Convert image to prompt
+- `POST /v1/api/image/size` - Get image aspect ratio and resolution
 
 Data Endpoints:
 - `GET /v1/api/get/models` - List all available models

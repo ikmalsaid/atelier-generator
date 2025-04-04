@@ -596,7 +596,6 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - strength (float, optional): Strength of creativity application (default: 0.9)
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
-            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -612,8 +611,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'lora_rt': request.form.get('lora_rt', 'none'),
                     'strength': float(request.form.get('strength', 0.9)),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none'),
-                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
+                    'style_name': request.form.get('style_name', 'none')
                 }
 
                 if not data['prompt']:
@@ -645,7 +643,6 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - lora_rt (str, optional): Name of the LoRA RT preset (default: "none")
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
-            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             """
             try:
                 data = {
@@ -654,8 +651,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'image_size': request.form.get('image_size', '1:1'),
                     'lora_rt': request.form.get('lora_rt', 'none'),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none'),
-                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
+                    'style_name': request.form.get('style_name', 'none')
                 }
 
                 if not data['prompt']:
@@ -686,7 +682,6 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - strength (float, optional): Strength of inpainting (default: 0.5)
             - cfg (float, optional): Scale of the prompt (default: 9.0)
             - style_name (str, optional): Name of the style preset (default: "none")
-            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -706,8 +701,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'negative_prompt': request.form.get('negative_prompt', ''),
                     'strength': request.form.get('strength', 0.5),
                     'cfg': request.form.get('cfg', 9.0),
-                    'style_name': request.form.get('style_name', 'none'),
-                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
+                    'style_name': request.form.get('style_name', 'none')
                 }
 
                 if not data['prompt']:
@@ -778,7 +772,6 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - resemblance (float, optional): Strength of resemblance application (default: 0.8)
             - hdr (float, optional): Strength of HDR application (default: 0.5)
             - style_name (str, optional): Name of the style preset (default: "none")
-            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -794,8 +787,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'creativity': request.form.get('creativity', 0.3),
                     'resemblance': request.form.get('resemblance', 1),
                     'hdr': request.form.get('hdr', 0),
-                    'style_name': request.form.get('style_name', 'none'),
-                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
+                    'style_name': request.form.get('style_name', 'none')
                 }
 
                 result = client.image_enhance(**data)
@@ -826,7 +818,6 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - cfg (float, optional): Scale of the prompt (default: 9.0)
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
-            - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
             
             Files:
             - image (file, required): Source image file
@@ -844,8 +835,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'strength': request.form.get('strength', 70),
                     'cfg': request.form.get('cfg', 9.0),
                     'image_seed': request.form.get('image_seed', 0),
-                    'style_name': request.form.get('style_name', 'none'),
-                    'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true'
+                    'style_name': request.form.get('style_name', 'none')
                 }
 
                 if not data['prompt']:
@@ -1039,6 +1029,37 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
 
             except Exception as e:
                 client.logger.error(f"Error in image_prompt_api: {e}")
+                return jsonify({"success": False, "error": str(e)}), 400
+
+        @app.route('/v1/api/image/size', methods=['POST'])
+        def image_size_api():
+            """
+            Handle aspect ratio check requests via files.
+            
+            Files:
+            - image (file, required): Source image file
+            """
+            try:
+                if 'image' not in request.files:
+                    raise Exception("No image provided")
+
+                data = {
+                    'image': request.files['image'],
+                }
+
+                img_ratio, img_res, _ = client.size_checker(**data)
+                if not img_ratio:
+                    raise Exception("Aspect ratio check failed")
+
+                return jsonify({"success": True,
+                                "result": {
+                                    "img_ratio": img_ratio,
+                                    "img_res": img_res
+                                    }
+                                })
+
+            except Exception as e:
+                client.logger.error(f"Error in image_size_api: {e}")
                 return jsonify({"success": False, "error": str(e)}), 400
 
         app.run(host=host, port=port, debug=debug)

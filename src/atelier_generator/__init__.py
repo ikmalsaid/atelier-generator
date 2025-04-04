@@ -7,7 +7,7 @@ import random
 import inspect
 import tempfile
 import requests
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from datetime import datetime
 from importlib import resources
@@ -16,7 +16,8 @@ from colorpaws import ColorPaws
 class AtelierGenerator:
     """Copyright (C) 2025 Ikmal Said. All rights reserved."""
     def __init__(self, mode: str = "default", gradio: bool = False, timeout: int = 180, log_on: bool = True,
-                 log_to: str = None, save_to: str = "outputs", save_as: str = "webp"):
+                 log_to: str = None, save_to: str = "outputs", save_as: str = "webp", wm_on: bool = True,
+                 wm_text: str = "AtelierGenerator by ikmalsaid"):
         """
         Initialize Atelier Client module.
 
@@ -28,6 +29,8 @@ class AtelierGenerator:
         - log_to  (str): Directory to save logs.
         - save_to (str): Directory to save outputs.
         - save_as (str): Output format ('png', 'webp', 'jpg', 'pil').
+        - wm_on  (bool): Enable automatic watermarking of generated images.
+        - wm_text (str): Custom watermark text. If not specified, uses default text.
         """        
         self.logger = ColorPaws(
             name=self.__class__.__name__,
@@ -37,6 +40,8 @@ class AtelierGenerator:
         
         self.gradio  = gradio
         self.timeout = timeout
+        self.wm_on   = wm_on
+        self.wm_text = wm_text
 
         self.__online_check()  
         self.__load_preset()
@@ -45,6 +50,9 @@ class AtelierGenerator:
 
         self.__init_checks(save_to, save_as)
         self.logger.info(f"{self.__class__.__name__} is now ready!")
+        
+        if self.wm_on:
+            self.logger.warning(f"Watermark enabled: '{self.wm_text}'")
         
         if mode != "default":
             self.__startup_mode(mode)
@@ -196,6 +204,73 @@ class AtelierGenerator:
         except Exception as e:
             error = f"Error in load_lists: {e}"
             self.logger.error(error)
+            raise
+
+    def size_checker(self, image: str):
+        """
+        Check the aspect ratio of an input image and match it with predefined ratios.
+
+        Parameters:
+        - image (str): Path to the image file or PIL Image object
+
+        Returns:
+        - tuple: (matched_ratio, resolution, image_path)
+            - matched_ratio (str): The closest matching predefined aspect ratio
+            - resolution (tuple): The image width and height as (width, height)
+            - image_path (str): The path to the image file
+        """
+        def calculate_gcd(a: int, b: int):
+            """Calculate the Greatest Common Divisor of two numbers."""
+            while b:
+                a, b = b, a % b
+            return a
+
+        try:
+            # Handle different input types
+            if isinstance(image, Image.Image):
+                img = image
+                image_path = "PIL Image object"
+            elif hasattr(image, 'read'):
+                img = Image.open(image)
+                image_path = getattr(image, 'name', 'File-like object')
+            elif isinstance(image, str):
+                img = Image.open(image)
+                image_path = image
+            else:
+                raise ValueError(f"Unsupported image type: {type(image)}")
+
+            # Get image dimensions
+            width, height = img.size
+            resolution = (width, height)
+
+            # Calculate actual aspect ratio
+            gcd = calculate_gcd(width, height)
+            simplified_width = width // gcd
+            simplified_height = height // gcd
+            actual_ratio = f"{simplified_width}:{simplified_height}"
+
+            # If actual ratio matches any predefined ratio, return it
+            if actual_ratio in self.__atr_size:
+                return actual_ratio, resolution, image_path
+
+            # Otherwise find the closest match
+            actual_decimal = width / height
+            closest_ratio = "1:1"  # Default to square if no close match
+            smallest_diff = float('inf')
+
+            for ratio in self.__atr_size:
+                w, h = map(int, ratio.split(':'))
+                decimal_ratio = w / h
+                diff = abs(decimal_ratio - actual_decimal)
+                
+                if diff < smallest_diff:
+                    smallest_diff = diff
+                    closest_ratio = ratio
+
+            return closest_ratio, resolution, image_path
+
+        except Exception as e:
+            self.logger.error(f"Error in size_checker: {e}")
             raise
 
     def __random_seed_generator(self, seed: int = 0, task_id: str = None):
@@ -554,10 +629,33 @@ class AtelierGenerator:
                         self.logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
                         return None                
                     
+                    # Apply watermark if enabled and it's an image response
+                    if self.wm_on and "image" in content_type and caller_name != 'image_transparent':
+                        try:
+                            # Create a temporary file to process the image
+                            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                                temp_file.write(content_bytes)
+                                temp_path = temp_file.name
+                            
+                            # Apply watermark
+                            watermarked = self.__image_watermark(temp_path, task_id=task_id)
+                            
+                            # Clean up temp file
+                            os.unlink(temp_path)
+                            
+                            # Read the watermarked image
+                            content_bytes = watermarked
+                            
+                            self.logger.info(f"[{task_id}] Applied watermark to image!")
+                            
+                        except Exception as e:
+                            self.logger.warning(f"[{task_id}] Failed to apply watermark!")
+                            # Continue with original image if watermarking fails
+                    
                     return self.__save_output(content_bytes, ".png", caller_name, task_id)
 
                 except Exception as e:
-                    self.logger.error(f"[{task_id}] Error handling streaming response: {e}")
+                    self.logger.error(f"[{task_id}] Error handling streaming response!")
                     return None           
 
             def request_handler(custom=None):
@@ -605,6 +703,85 @@ class AtelierGenerator:
 
         except Exception as e:
             self.logger.error(f"[{task_id}] Error in service_request: {e}")
+            raise
+
+    def __image_watermark(self, image: str, position: str = "bottom-right", font_size: int = 24, opacity: int = 128, task_id: str = None):
+        """
+        Adds a text watermark to an image.
+
+        Parameters:
+        - image (file): Source image file.
+        - text (str): Watermark text to add.
+        - position (str): Position of watermark ('top-left', 'top-right', 'bottom-left', 'bottom-right').
+        - font_size (int): Size of the watermark text.
+        - opacity (int): Opacity of the watermark (0-255).
+        - service_mode (bool): For service request use only.
+        """
+        try:
+            text = self.wm_text
+
+            # Process input image
+            byte_array = self.__image_processor(image, task_id=task_id)
+            if not byte_array:
+                raise ValueError(f"Invalid image!")
+            
+            # Open image from bytes
+            img = Image.open(byte_array)
+            
+            # Create a drawing context
+            draw = ImageDraw.Draw(img)
+            
+            # Try to load a font, fallback to default if not available
+            try:
+                font = ImageFont.truetype("arial.ttf", font_size)
+            except:
+                font = ImageFont.load_default()
+            
+            # Get text size
+            text_bbox = draw.textbbox((0, 0), text, font=font)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
+            
+            # Calculate position
+            img_width, img_height = img.size
+            padding = 10  # Padding from edges
+            
+            if position == "top-left":
+                x = padding
+                y = padding
+            elif position == "top-right":
+                x = img_width - text_width - padding
+                y = padding
+            elif position == "bottom-left":
+                x = padding
+                y = img_height - text_height - padding
+            else:  # bottom-right (default)
+                x = img_width - text_width - padding
+                y = img_height - text_height - padding
+            
+            # Create a semi-transparent overlay for better text visibility
+            overlay = Image.new('RGBA', img.size, (0, 0, 0, 0))
+            overlay_draw = ImageDraw.Draw(overlay)
+            overlay_draw.text((x, y), text, font=font, fill=(255, 255, 255, opacity))
+            
+            # Composite the overlay onto the original image
+            if img.mode != 'RGBA':
+                img = img.convert('RGBA')
+            img = Image.alpha_composite(img, overlay)
+            
+            # Convert back to RGB if needed
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
+            
+            # Save to bytes
+            output = BytesIO()
+            img.save(output, format='PNG')
+            output.seek(0)
+            
+            return output.getvalue()
+
+        except Exception as e:
+            self.logger.error(f"[{task_id}] Error in __image_watermark: {str(e)}")
             raise
 
     def image_generate(self, prompt: str, negative_prompt: str = "", model_name: str = "flux-turbo",
