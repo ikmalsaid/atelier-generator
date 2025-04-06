@@ -306,7 +306,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
             - image_seed (int, optional): Seed for image generation (default: 0)
             - style_name (str, optional): Name of the style preset (default: "none")
             - enhance_prompt (bool, optional): Enable prompt enhancement (default: False)
-            - transparent (bool, optional): Enable transparent image (default: True)
+            - transparency (bool, optional): Enable transparency (default: True)
             """
             try:
                 data = {
@@ -316,7 +316,7 @@ def AtelierWebAPI(client, host: str = None, port: int = None, debug: bool = Fals
                     'image_seed': request.form.get('image_seed', 0),
                     'style_name': request.form.get('style_name', 'none'),
                     'enhance_prompt': request.form.get('enhance_prompt', 'false').lower() == 'true',
-                    'transparent': request.form.get('transparent', 'true').lower() == 'true'
+                    'transparency': request.form.get('transparency', 'true').lower() == 'true'
                 }
 
                 if not data['prompt']:

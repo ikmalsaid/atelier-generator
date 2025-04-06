@@ -7,11 +7,11 @@ import random
 import inspect
 import tempfile
 import requests
-from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 from datetime import datetime
 from importlib import resources
 from colorpaws import ColorPaws
+from PIL import Image, ImageDraw, ImageFont
 
 class AtelierGenerator:
     """Copyright (C) 2025 Ikmal Said. All rights reserved."""
@@ -146,6 +146,7 @@ class AtelierGenerator:
             self.__atr_inf          = __atr_preset["locale"][2]
             self.__atr_arc          = __atr_preset["locale"][3]
             self.__atr_error        = __atr_preset["error"][0]
+            self.__atr_nsfw         = __atr_preset["nsfw"][0]
             self.__atr_lora_svi     = __atr_preset["lora_svi"]
             self.__atr_lora_rt      = __atr_preset["lora_rt"]
             self.__atr_test         = __atr_preset["test"][0]
@@ -171,6 +172,7 @@ class AtelierGenerator:
             self.__inf = base64.b64decode(self.__atr_inf).decode('utf-8')
             self.__arc = base64.b64decode(self.__atr_arc).decode('utf-8')
             self.__err = BytesIO(base64.b64decode(self.__atr_error)).read()
+            self.__nsw = BytesIO(base64.b64decode(self.__atr_nsfw)).read()
             self.__xea = {"bearer": self.__loc}
 
         except Exception as e:
@@ -622,15 +624,19 @@ class AtelierGenerator:
                     content_bytes = content.getvalue()
 
                     if len(content_bytes) <= 4096:
-                        self.logger.error(f"[{task_id}] Response is too small! (4096 bytes or less)")
+                        self.logger.error(f"[{task_id}] Incorrect response!")
                         return None                
 
+                    if content_bytes == self.__nsw:
+                        self.logger.error(f"[{task_id}] Request rejected! (Content Moderation)")
+                        return None                
+                    
                     if content_bytes == self.__err:
-                        self.logger.error(f"[{task_id}] Request rejected! (likely NSFW content)")
+                        self.logger.error(f"[{task_id}] Request rejected! (NSFW Content)")
                         return None                
                     
                     # Apply watermark if enabled and it's an image response
-                    if self.wm_on and "image" in content_type and caller_name != 'image_transparent':
+                    if self.wm_on and "image" in content_type and caller_name != 'image_transparent' and caller_name != 'image_bgremove':
                         try:
                             # Create a temporary file to process the image
                             with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
@@ -683,7 +689,7 @@ class AtelierGenerator:
                     )
                     
                     if response.status_code != 200:
-                        self.logger.error(f"[{task_id}] Request failed! Status: {response.status_code} ({response.text})")
+                        self.logger.error(f"[{task_id}] Request failed! (Status: {response.status_code} - {response.text})")
                         return None
                     
                     enhanced_prompt = response.headers.get('x-enhanced-prompt')
@@ -697,7 +703,7 @@ class AtelierGenerator:
                     return None        
                 
                 finally:
-                    self.logger.info(f"[{task_id}] Request took {time.time() - start_time:.2f} seconds.")
+                    self.logger.info(f"[{task_id}] Request took {time.time() - start_time:.2f} seconds!")
 
             return request_handler(custom)
 
