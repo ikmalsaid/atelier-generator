@@ -245,9 +245,10 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Fal
 
             with gr.Tab("Image Generator"):
                 
-                def igen_prep(igen_pro, igen_neg, igen_mod, igen_siz, igen_svi, igen_flux, igen_sed, igen_sty, igen_enh, igen_ram):
+                def igen_prep(igen_pro, igen_neg, igen_mod, igen_siz, igen_svi, igen_flux, igen_sed, igen_sty, igen_enh, igen_ram, igen_number):
+                    print(igen_number)
                     caption = f"{truncate_prompt(igen_pro)} | Model: {igen_mod} | Size: {igen_siz} | Style: {igen_sty} | SVI LoRA: {igen_svi} | Flux LoRA: {igen_flux} | Seed: {igen_sed}"
-                    results = client.image_generate(igen_pro, igen_neg, igen_mod, igen_siz, igen_svi, igen_flux, igen_sed, igen_sty, igen_enh)
+                    results = client.image_generate(igen_pro, igen_neg, igen_mod, igen_siz, igen_svi, igen_flux, igen_sed, igen_sty, igen_enh, igen_number)
                     if results is not None:
                         igen_ram.insert(0, (results, caption))
                     return igen_ram
@@ -258,6 +259,7 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Fal
                         Markdown("<center>Basic Settings")
                         igen_pro = Textbox("Prompt for image...")
                         igen_neg = Textbox("Negative prompt...")
+                        igen_number = Textbox("Igen Model Number...")
                         
                         Markdown("<center>Advanced Settings")
                         with gr.Row():
@@ -284,7 +286,7 @@ def AtelierWebUI(client, host: str = None, port: int = None, browser: bool = Fal
                             show_api=False,
                             scroll_to_output=True,
                             fn=igen_prep,
-                            inputs=[igen_pro, igen_neg, igen_mod, igen_siz, igen_svi, igen_flux, igen_sed, igen_sty, igen_enh, igen_ram],
+                            inputs=[igen_pro, igen_neg, igen_mod, igen_siz, igen_svi, igen_flux, igen_sed, igen_sty, igen_enh, igen_ram, igen_number],
                             outputs=[igen_res]
                         )    
 

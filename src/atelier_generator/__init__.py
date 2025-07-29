@@ -627,9 +627,9 @@ class AtelierGenerator:
                         self.logger.error(f"[{task_id}] Incorrect response!")
                         return None                
 
-                    if content_bytes == self.__nsw:
-                        self.logger.error(f"[{task_id}] Request rejected! (Content Moderation)")
-                        return None                
+                    # if content_bytes == self.__nsw:
+                    #     self.logger.error(f"[{task_id}] Request rejected! (Content Moderation)")
+                    #     return None                
                     
                     if content_bytes == self.__err:
                         self.logger.error(f"[{task_id}] Request rejected! (NSFW Content)")
@@ -792,7 +792,8 @@ class AtelierGenerator:
 
     def image_generate(self, prompt: str, negative_prompt: str = "", model_name: str = "flux-turbo",
                        image_size: str = "1:1", lora_svi: str = "none", lora_flux: str = "none",
-                       image_seed: int = 0, style_name: str = "none", enhance_prompt: bool = False):
+                       image_seed: int = 0, style_name: str = "none", enhance_prompt: bool = False,
+                       model_number: int = None):
         """
         High quality image generation.
 
@@ -809,6 +810,8 @@ class AtelierGenerator:
         """
         try:
             task_id = self.__get_task_id()
+            
+            print(model_name if not model_number else model_number)
             
             lora_svi, lora_flux = self.__lora_checker(model_name, lora_svi, lora_flux, task_id)
             
@@ -833,7 +836,7 @@ class AtelierGenerator:
                 "enable_layer_diffusion": (None, "false"),
                 "enable_adetailer": (None, "false"),
                 "aspect_ratio": (None, image_size),
-                "style_id": (None, model_name),
+                "style_id": (None, model_name if not model_number else model_number),
                 "variation": (None, "txt2img"),
                 "enable_hr": (None, "true"),
                 "prompt": (None, prompt),

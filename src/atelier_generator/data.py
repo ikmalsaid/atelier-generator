@@ -20,7 +20,12 @@
         "transparent": "generations/transparent"
     },
     "models_sdxl": {
+        "openai-gpt-1": "30002",
         "google-imagen-3": "14000",
+        "flux-ultra-11": "40102",
+        "ideogram-3": "40202",
+        "minimax-image-1": "40301",
+        "seedream-3": "40402",
         "sdxl-illustration": "403",
         "sdxl-anime": "402",
         "sdxl-realistic": "401",
@@ -31,7 +36,8 @@
     "models_flux": {
         "flux-turbo": "309",
         "flux-hd": "310",
-        "flux-text": "311",
+        "flux-raw": "311",
+        "flux-cosmos": "312",
         "flux-ultra": "409"
     },
     "models_svi": {
@@ -153,14 +159,19 @@
         "flat-cartoon": "0257",
         "dark-whimsical": "0258",
         "hand-drawn": "0260",
-        "painterly-fantasia": "0261"
+        "painterly-fantasia": "0261",
+        "ghibli-latest": "1724f259-fe6d-4b11-9121-425d1baf171f",
+        "sketch-alpha": "0265",
+        "emoji-alpha": "0267",
+        "tattoo-alpha": "0268"
     },
     "lora_rt": {
-        "none": "picture",
+        "realistic": "picture",
         "anime": "anime",
         "pixar": "pixar-style",
         "raw": "raw",
-        "cinematic": "cinematic lighting"
+        "cinematic": "cinematic-lighting",
+        "cinematic-alpha": "cinematic_lighting"
     },
     "styles": {
         "none": {
