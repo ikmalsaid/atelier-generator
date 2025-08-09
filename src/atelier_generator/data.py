@@ -22,6 +22,7 @@
     "models_sdxl": {
         "openai-gpt-1": "30002",
         "google-imagen-3": "14000",
+        "google-imagen-4": "16000",
         "flux-ultra-11": "40102",
         "ideogram-3": "40202",
         "minimax-image-1": "40301",
