@@ -19,24 +19,28 @@
         "codeformer": "codeformer",
         "transparent": "generations/transparent"
     },
+    "models_broken": {
+        "x-google-nano-banana": "40601",
+        "x-flux-ultra-11": "40102",
+        "x-ideogram-3": "40202",
+        "x-ideogram-character": "40203",
+        "x-qwen-image": "40501",
+        "x-minimax-image-1": "40301",
+        "x-seedream-3": "40402",
+        "x-dreamina-31": "40403",
+        "x-sdxl-artistic": "405",
+        "x-svi-turbo": "304",
+        "x-svi-artistic": "303"
+    },
     "models_sdxl": {
         "google-imagen-3": "14000",
         "google-imagen-4": "16000",
-        "google-nano-banana": "40601",
         "gpt-image-1": "30002",
-        "flux-ultra-11": "40102",
-        "ideogram-3": "40202",
-        "ideogram-character": "40203",
-        "qwen-image": "40501",
-        "minimax-image-1": "40301",
-        "seedream-3": "40402",
-        "dreamina-31": "40403",
         "sdxl-illustration": "403",
         "sdxl-anime": "402",
         "sdxl-realistic": "401",
-        "sdxl-artistic": "405",
         "sdxl-turbo": "128",
-        "sdxl-turbo-2": "404"
+        "sdxl-turbo-v2": "404"
     },
     "models_flux": {
         "flux-turbo": "309",
@@ -46,10 +50,8 @@
         "flux-ultra": "409"
     },
     "models_svi": {
-        "svi-turbo": "304",
         "svi-realistic": "302",
-        "svi-anime": "301",
-        "svi-artistic": "303"
+        "svi-anime": "301"
     },
     "size": {
         "1:1": "1:1",
